@@ -26,6 +26,7 @@ public class OreUBifyRequester implements UBOreTexturizer {
         UBAPIHook.ubAPIHook.ubOreTexturizer = this;
     }
 
+    @Deprecated
     public void setupUBOre(Block oreBlock, int metadata, String overlayName, FMLPreInitializationEvent event) {
         logger.info("setup attempt");
         assert(oreBlock != null);
@@ -35,6 +36,7 @@ public class OreUBifyRequester implements UBOreTexturizer {
         UndergroundBiomes.instance().oreUBifier().setupUBOre(oreBlock, overlayName, metadata,minecraftName(oreBlock,metadata),event);
     }
 
+    @Deprecated
     public void requestUBOreSetup(Block oreBlock, int metadata, String overlayName) throws BlocksAreAlreadySet {
         logger.info("setup request for "+oreBlock.getLocalizedName());
         assert(oreBlock != null);
@@ -46,7 +48,11 @@ public class OreUBifyRequester implements UBOreTexturizer {
     }
 
     public void setupUBOre(Block oreBlock, int metadata, String overlayName, String blockName, FMLPreInitializationEvent event) {
-        UndergroundBiomes.instance().oreUBifier().setupUBOre(oreBlock, overlayName, metadata, new MinecraftName(blockName), event);
+        setupUBOre(oreBlock, metadata, overlayName, new MinecraftName(blockName), event);
+    }
+
+    private void setupUBOre(Block oreBlock, int metadata, String overlayName, MinecraftName blockName, FMLPreInitializationEvent event) {
+        UndergroundBiomes.instance().oreUBifier().setupUBOre(oreBlock, overlayName, metadata, blockName, event);
     }
 
     public void requestUBOreSetup(Block oreBlock, int metadata, String overlayName, String blockName) throws BlocksAreAlreadySet {
@@ -87,7 +93,7 @@ public class OreUBifyRequester implements UBOreTexturizer {
 
         @Override
         void fulfill(FMLPreInitializationEvent event) {
-            setupUBOre(ore,metadata,overlayName,event);
+            setupUBOre(ore,metadata,overlayName,name,event);
         }
     }
     
