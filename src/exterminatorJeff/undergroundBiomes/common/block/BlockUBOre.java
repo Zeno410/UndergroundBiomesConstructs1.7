@@ -96,11 +96,6 @@ public class BlockUBOre extends Block {
         }
     }
 
-    protected ShamWorld shamWorld(World forSettings) {
-        if (shamWorld == null) shamWorld = new ShamWorld(new WorldSettings(forSettings.getWorldInfo()));
-        return shamWorld;
-    }
-
     @Override
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune){
         return ore.getDrops(world, x, y, z, metadata, fortune);
@@ -190,6 +185,11 @@ public class BlockUBOre extends Block {
     }
     public int damageDropped(int metadata){
         return metadata;
+    }
+
+    @Override
+    public boolean canEntityDestroy(IBlockAccess world, int x, int y, int z, Entity entity) {
+        return ore.canEntityDestroy(world, x, y, z, entity);
     }
    
 }

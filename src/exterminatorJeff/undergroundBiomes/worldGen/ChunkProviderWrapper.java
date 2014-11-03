@@ -20,6 +20,8 @@ public class ChunkProviderWrapper implements IChunkProvider {
     public ChunkProviderWrapper(IChunkProvider toWrap) {
         wrappee = toWrap;
     }
+
+    public IChunkProvider wrappee() {return wrappee;}
     /**
      * Checks to see if a chunk exists at x, y
      */

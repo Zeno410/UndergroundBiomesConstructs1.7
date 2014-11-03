@@ -108,11 +108,40 @@ public class BlockUBMetadataOre extends BlockUBOre {
     public void harvestBlock(World world, EntityPlayer p_149636_2_, int x, int y, int z, int p_149636_6_) {
         super.harvestBlock(world, p_149636_2_, x, y, z, oreMetadata);
     }
+    
+    @Override
+    public int getHarvestLevel(int metadata) {
+        return ore.getHarvestLevel(metadata);
+    }
+
+    @Override
+    public String getHarvestTool(int metadata) {
+        return ore.getHarvestTool(metadata);
+    }
 
     @Override
     public boolean canHarvestBlock(EntityPlayer player, int meta) {
         return ore.canHarvestBlock(player, oreMetadata);
     }
+
+    @Override
+    public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z) {        int metadata = world.getBlockMetadata(x, y, z);
+        float hardness = getBlockHardness(world, x, y, z);
+        if (hardness < 0.0F)
+        {
+            return 0.0F;
+        }
+
+        if (!canHarvestBlock(player, metadata))
+        {
+            return player.getBreakSpeed(this, true, metadata, x, y, z) / hardness / 100F;
+        }
+        else
+        {
+            return player.getBreakSpeed(this, false, metadata, x, y, z) / hardness / 30F;
+        }
+    }
+    
     @Override
     public void updateTick(World world, int x, int y, int z, Random p_149674_5_) {
         int stoneMetadata = world.getBlockMetadata(x, y, z);

@@ -36,16 +36,12 @@ public abstract class UBConstructGroup {
             //GameRegistry.registerBlock( construct, itemClass(),name);\
         }
         
-        public void addRecipes() {
-            for (int ubIndex = 0; ubIndex <UndergroundBiomesBlockList.detailedBlockCount;ubIndex++) {
-                addRecipe(new ProductItemDefiner(ubIndex),new StoneItemDefiner(ubIndex));
-            }
-        }
-        
         public ArrayList<IRecipe> recipes() {
             ArrayList<IRecipe> result = new ArrayList<IRecipe>();
             for (int ubIndex = 0; ubIndex <UndergroundBiomesBlockList.detailedBlockCount;ubIndex++) {
                 IRecipe added = recipe(new ProductItemDefiner(ubIndex),new StoneItemDefiner(ubIndex));
+                if (added != null) result.add(added);
+                added = rescueRecipe(new ProductItemDefiner(ubIndex),new StoneItemDefiner(ubIndex));
                 if (added != null) result.add(added);
             }
             return result;
@@ -53,11 +49,11 @@ public abstract class UBConstructGroup {
                 
         abstract IRecipe recipe(ProductItemDefiner product, StoneItemDefiner stone);
 
+        abstract IRecipe rescueRecipe(ProductItemDefiner product, StoneItemDefiner stone);
+
         abstract Block definedBlock(); // this should return the construct block for the group
 
         abstract Class<? extends ItemBlock> itemClass(); // the class to handle items
-
-        abstract void addRecipe(ProductItemDefiner product, StoneItemDefiner stone); //
 
         public BlockMetadataBase baseBlock() {
             return baseBlock;

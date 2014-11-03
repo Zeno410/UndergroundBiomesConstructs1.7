@@ -66,6 +66,8 @@ public abstract class BlockMetadataBase extends BlockStone {
             renderID = NoCubes.renderId;
         } catch (java.lang.NoClassDefFoundError e) {
             renderID = super.getRenderType();
+        } catch (java.lang.NoSuchFieldError e) {
+            renderID = super.getRenderType();
         }
         UndergroundBiomes.instance().settings().hardnessModifier.informOnChange(this.hardnessUpdater);
         UndergroundBiomes.instance().settings().resistanceModifier.informOnChange(this.resistanceUpdater);

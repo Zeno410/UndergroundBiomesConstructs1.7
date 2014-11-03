@@ -166,11 +166,14 @@ public class UBButtonBase extends BlockButton implements ITileEntityProvider{
         super.onBlockPreDestroy( world,  x,  y,  z, p_149725_5_);
         // the tile entity we need for the drops is destroyed during the drop procedure
         // so we have to grab the index here
-        cacheCode(x,y,z,ubBlock(world,x,y,z));
+        TileEntity entity = world.getTileEntity(x, y, z);
+        if (entity != null&&(entity instanceof UndergroundBiomesTileEntity)){
+            cacheCode(x,y,z,ubBlock(world,x,y,z),world);
+        }
     }
 
-    private void cacheCode(int x, int y, int z, UndergroundBiomesBlock code) {
-        UndergroundBiomes.instance().ubCodeLocations.add(x, y, z, code);
+    private void cacheCode(int x, int y, int z, UndergroundBiomesBlock code,World world) {
+        UndergroundBiomes.instance().ubCodeLocations(world).add(x, y, z, code);
     }
 
     private int blockStayCode = 0;
@@ -189,10 +192,10 @@ public class UBButtonBase extends BlockButton implements ITileEntityProvider{
         blockStayCode = ubBlock(world,x,y,z).index;
         return super.canBlockStay(world, x, y, z);
     }
-    private UndergroundBiomesBlock unCacheCode(int x, int y, int z){
+    private UndergroundBiomesBlock unCacheCode(int x, int y, int z,World world){
         UndergroundBiomesBlock result;
-        result = UndergroundBiomes.instance().ubCodeLocations.get(x, y, z);
-        UndergroundBiomes.instance().ubCodeLocations.remove(x, y, z);
+        result = UndergroundBiomes.instance().ubCodeLocations(world).get(x, y, z);
+        UndergroundBiomes.instance().ubCodeLocations(world).remove(x, y, z);
         return result;
     }
 
@@ -206,7 +209,7 @@ public class UBButtonBase extends BlockButton implements ITileEntityProvider{
         {
             Item item = getItemDropped(metadata, world.rand, fortune);
             if (item != null) {
-                int index = this.unCacheCode(x, y, z).index;
+                int index = this.unCacheCode(x, y, z,world).index;
                 ret.add(new ItemStack(item, 1,index));
             }
         }
@@ -219,7 +222,7 @@ public class UBButtonBase extends BlockButton implements ITileEntityProvider{
     public void onBlockDestroyedByPlayer(World world, int x, int y, int z, int p_149664_5_) {
         super.onBlockDestroyedByPlayer(world, x,y , z, p_149664_5_);
         TileEntity entity = world.getTileEntity(x, y, z);
-        if (entity != null) {
+        if (entity != null&&(entity instanceof UndergroundBiomesTileEntity)) {
              world.removeTileEntity(x, y, z);
         }
     }

@@ -19,8 +19,11 @@ public class UBiomeCache{
     
     public BiomeUndergroundCacheBlock getUndergroundBiomeCacheBlock(int par1, int par2)
     {
-        par1 >>= 4;
-        par2 >>= 4;
+
+        // this used to downshift to chunk coordinates. But it wasn't always called with chunk coordinates///
+        // so I took that out.
+        //par1 >>= 4;
+        //par2 >>= 4;
         long var3 = (long)par1 & 4294967295L | ((long)par2 & 4294967295L) << 32;
         BiomeUndergroundCacheBlock var5 = (BiomeUndergroundCacheBlock)this.undergroundCacheMap.getValueByKey(var3);
 

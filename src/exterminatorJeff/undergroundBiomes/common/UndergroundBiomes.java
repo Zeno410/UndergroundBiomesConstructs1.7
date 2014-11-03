@@ -158,7 +158,15 @@ public class UndergroundBiomes{
     private int sedimentaryStoneSlabHalfID() {return instance().settings.sedimentaryStoneSlabHalfID.value();}
     private int sedimentaryStoneSlabFullID() {return instance().settings.sedimentaryStoneSlabFullID.value();}
 
-    public final UBCodeLocations ubCodeLocations = new UBCodeLocations();
+    private final UBCodeLocations serverCodeLocations = new UBCodeLocations();
+    private final UBCodeLocations clientCodeLocations = new UBCodeLocations();
+    public final UBCodeLocations ubCodeLocations(World world) {
+        if (world.isRemote) {
+            return clientCodeLocations;
+        } else {
+            return serverCodeLocations;
+        }
+    }
 
     private List<Integer> includeDimensionIDs;
     private List<Integer> excludeDimensionIDs;
@@ -598,8 +606,25 @@ public class UndergroundBiomes{
             GameRegistry.addRecipe(new ItemStack(metamorphicStoneBrick, 4, i), "xx", "xx", 'x', new ItemStack(metamorphicStone, 1, i));
             GameRegistry.addRecipe(new ItemStack(igneousStoneBrick, 4, i), "xx", "xx", 'x', new ItemStack(igneousStone, 1, i));
         }
+
+        // backup recipes for conversion problems
         
         GameRegistry.registerFuelHandler(new FuelManager());
+        for (int metadata = 0; metadata< 8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,0), new ItemStack(igneousStoneSlab.half, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,0), new ItemStack(metamorphicStoneSlab.half, 1,metadata)));
+        }
+        GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,1), new ItemStack(sedimentaryStoneSlab.half, 1)));
+
+        for (int metadata = 0; metadata< 8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,3), new ItemStack(igneousCobblestoneSlab.half, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,3), new ItemStack(metamorphicCobblestoneSlab.half, 1,metadata)));
+        }
+        for (int metadata = 0; metadata< 8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,5), new ItemStack(igneousBrickSlab.half, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,5), new ItemStack(metamorphicBrickSlab.half, 1,metadata)));
+        }
+
     }
     
     public void addOreDicts() {
@@ -804,7 +829,8 @@ public class UndergroundBiomes{
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event){
         gotWorldSeed = false;
-        this.ubCodeLocations.clear();
+        this.serverCodeLocations.clear();
+        this.clientCodeLocations.clear();
         this.dimensionManager.unload();
     }
 

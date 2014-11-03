@@ -25,7 +25,7 @@ public class BiomeUndergroundCacheBlock {
         this.biomes = new BiomeGenUndergroundBase[256];
         this.xPosition = par2;
         this.zPosition = par3;
-        theBiomeCache.worldGen.getUndergroundBiomeGenAt(this.biomes, par2 << 4, par3 << 4, 16, 16, false);
+        theBiomeCache.worldGen.cacheUndergroundBiomeGenAt(this.biomes, par2, par3, 16, 16);
     }
 
     /**

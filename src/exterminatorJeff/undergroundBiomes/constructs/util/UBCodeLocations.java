@@ -18,7 +18,7 @@ public class UBCodeLocations {
         BlockLocation location = BlockLocation.fetch(x,y,z);
         if (stored.containsKey(location)) {
             if (UndergroundBiomes.crashOnProblems()) {
-                throw new RuntimeException();
+                //throw new RuntimeException();
             }
         }
         stored.put(location, ubBlock);
@@ -45,7 +45,7 @@ public class UBCodeLocations {
         // for world loads. Crash under development if not empty.
         if (!stored.isEmpty()) {
             if (UndergroundBiomes.crashOnProblems()) {
-                throw new RuntimeException();
+                //throw new RuntimeException();
             } else {
                 stored.clear();
             }

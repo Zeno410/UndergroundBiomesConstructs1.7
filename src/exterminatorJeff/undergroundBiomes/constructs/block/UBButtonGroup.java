@@ -13,7 +13,9 @@ import exterminatorJeff.undergroundBiomes.constructs.util.UndergroundBiomesBlock
 import cpw.mods.fml.common.registry.GameRegistry;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -27,18 +29,19 @@ public class UBButtonGroup extends UBConstructGroup {
         if (block.ubBlock == UndergroundBiomes.igneousStoneBrick) return true;
         return  (block.ubBlock  == UndergroundBiomes.metamorphicStoneBrick) ;
     }
-
-    void addRecipe(ProductItemDefiner product,StoneItemDefiner stone) {
-        // suppress brick buttons
-        if (suppress(stone.ubBlock())) return;
-        //GameRegistry.addRecipe(new ShapedOreRecipe(product.stackOf(2), "   ", " X ", " X ", 'X', stone.one()));
-        GameRegistry.addShapelessRecipe(product.stackOf(1), stone.one());
-    }
     
     IRecipe recipe(ProductItemDefiner product,StoneItemDefiner stone) {
         // suppress brick buttons
         if (suppress(stone.ubBlock())) return null;
         return new ShapelessOreRecipe(product.stackOf(1), stone.one());
+    }
+
+    IRecipe rescueRecipe(ProductItemDefiner product,StoneItemDefiner stone) {
+        // suppress brick buttons
+        if (suppress(stone.ubBlock())) return null;
+        if (stone.ubBlock().ubBlock == UndergroundBiomes.igneousCobblestone) return null;
+        if (stone.ubBlock().ubBlock == UndergroundBiomes.metamorphicCobblestone) return null;
+        return new ShapelessOreRecipe(new ItemStack(Blocks.stone_button,1), product.stackOf(1));
     }
 
     Class<? extends ItemBlock> itemClass() {

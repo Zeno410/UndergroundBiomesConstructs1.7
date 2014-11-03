@@ -93,6 +93,10 @@ public class UBStoneCodes extends BlockCodes {
            return new BlockCodes(NamedVanillaBlock.stoneBrick, metadata);
         }
 
+        if (name == NamedVanillaBlock.stoneSingleSlab) {
+            return new BlockCodes(NamedVanillaBlock.stoneSingleSlab,metadata);
+        }
+        
         if (UndergroundBiomes.crashOnProblems()) {
             throw new RuntimeException("no cobble for "+ name.external() + " metadata " + metadata);
         }

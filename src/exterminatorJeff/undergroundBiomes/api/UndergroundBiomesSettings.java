@@ -100,7 +100,7 @@ public final class UndergroundBiomesSettings extends Settings {
             "DimensionSpecificSeeds", false,"Use different seeds in different dimensions");
 
     public final Mutable<Boolean>  inChunkGeneration = this.general().booleanSetting(
-            "InChunkGeneration", true,"Change stones during chunk generation");
+            "InChunkGeneration", false,"Change stones during chunk generation");
 
     public final Mutable<String> inChunkGenerationExclude = this.general().stringSetting(
             "inChunkDimensionExclusions", "-1,1", "Comma-separated list of dimension to only use old decoration-phase generation, used only if inclusion list is *");

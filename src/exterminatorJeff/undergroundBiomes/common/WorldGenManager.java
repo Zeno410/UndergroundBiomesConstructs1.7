@@ -151,10 +151,10 @@ public class WorldGenManager {
 
     public BiomeGenUndergroundBase[] loadUndergroundBlockGeneratorData(BiomeGenUndergroundBase[] par1ArrayOfBiomeGenBase, int par2, int par3, int par4, int par5)
     {
-        return this.getUndergroundBiomeGenAt(par1ArrayOfBiomeGenBase, par2, par3, par4, par5, true);
+        return this.getUndergroundBiomeGenAt(par1ArrayOfBiomeGenBase, par2, par3, par4, par5);
     }
 
-    public BiomeGenUndergroundBase[] getUndergroundBiomeGenAt(BiomeGenUndergroundBase[] biomesArrayPar, int par2, int par3, int par4, int par5, boolean par6)
+    public BiomeGenUndergroundBase[] getUndergroundBiomeGenAt(BiomeGenUndergroundBase[] biomesArrayPar, int par2, int par3, int par4, int par5)
     {
             IntCache.resetIntCache();
 
@@ -165,7 +165,7 @@ public class WorldGenManager {
                 biomesArray = new BiomeGenUndergroundBase[par4 * par5];
             }
 
-            if (par6 && par4 == 16 && par5 == 16 && (par2 & 15) == 0 && (par3 & 15) == 0){
+            if (par4 == 16 && par5 == 16 ){ //&& (par2 & 15) == 0 && (par3 & 15) == 0){
 
                 BiomeGenUndergroundBase[] var9 = this.biomeCache.getCachedUndergroundBiomes(par2, par3);
                 System.arraycopy(var9, 0, biomesArray, 0, par4 * par5);
@@ -173,18 +173,24 @@ public class WorldGenManager {
                 return biomesArray;
 
             }else{
-
-                int[] var7 = this.undergroundBiomeIndexLayer.getInts(par2, par3, par4, par5);
-
-
-
-                for (int var8 = 0; var8 < par4 * par5; ++var8){
-                    biomesArray[var8] = biomeSet.biomeList[var7[var8]];
-                }
-
-           return biomesArray;
+                throw new RuntimeException();
         }
 
+    }
+
+    public BiomeGenUndergroundBase[] cacheUndergroundBiomeGenAt(BiomeGenUndergroundBase[] biomesArrayPar, int par2, int par3, int par4, int par5){
+            BiomeGenUndergroundBase[] biomesArray = biomesArrayPar;
+
+            if (biomesArray == null || biomesArray.length < par4 * par5){
+                IntCache.resetIntCache();
+                biomesArray = new BiomeGenUndergroundBase[par4 * par5];
+            }
+            int[] var7 = this.undergroundBiomeIndexLayer.getInts(par2, par3, par4, par5);
+                for (int var8 = 0; var8 < par4 * par5; ++var8){
+                    biomesArray[var8] = biomeSet.biomeList[var7[var8]];
+                    if (biomesArray[var8].strata[0]==null) throw new RuntimeException();
+                }
+           return biomesArray;
     }
 
     public void setGenerated(int x, int z) {

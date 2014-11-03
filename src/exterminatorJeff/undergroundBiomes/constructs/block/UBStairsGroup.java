@@ -12,7 +12,9 @@ import exterminatorJeff.undergroundBiomes.constructs.item.ItemUBStairs;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 
+import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.Item;
@@ -20,6 +22,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 
 public class UBStairsGroup extends UBConstructGroup {
@@ -28,14 +31,23 @@ public class UBStairsGroup extends UBConstructGroup {
         super("stairs");
     }
 
-    void addRecipe(ProductItemDefiner product, StoneItemDefiner stone) {
-        IRecipe stairsRecipe = new ShapedOreRecipe(
-                product.stackOf(4), "  X", " XX", "XXX", 'X', stone.one());
-        GameRegistry.addRecipe(stairsRecipe);
-    }
-
     IRecipe recipe(ProductItemDefiner product, StoneItemDefiner stone) {
         return new ShapedOreRecipe(product.stackOf(4), "  X", " XX", "XXX", 'X', stone.one());
+    }
+
+    IRecipe rescueRecipe(ProductItemDefiner product, StoneItemDefiner stone) {
+        if (stone.ubBlock().ubBlock == UndergroundBiomes.igneousCobblestone) return null;
+        if (stone.ubBlock().ubBlock == UndergroundBiomes.metamorphicCobblestone) return null;
+        if (stone.ubBlock().ubBlock == UndergroundBiomes.igneousStoneBrick){
+            return new ShapelessOreRecipe(new ItemStack(Blocks.stone_brick_stairs,1), product.stackOf(1));
+        };
+        if (stone.ubBlock().ubBlock == UndergroundBiomes.metamorphicStoneBrick){
+            return new ShapelessOreRecipe(new ItemStack(Blocks.stone_brick_stairs,1), product.stackOf(1));
+        };
+        if (stone.ubBlock().ubBlock == UndergroundBiomes.sedimentaryStone){
+            return new ShapelessOreRecipe(new ItemStack(Blocks.sandstone_stairs,1), product.stackOf(1));
+        };
+        return new ShapelessOreRecipe(new ItemStack(Blocks.stone_stairs,1), product.stackOf(1));
     }
 
     Class<? extends ItemBlock> itemClass() {
