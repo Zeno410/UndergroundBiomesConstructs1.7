@@ -14,6 +14,11 @@ public class MinecraftName {
     }
     public String localized() {
         return StatCollector.translateToLocal(this.unlocalized() + ".name");
+        //return unlocalized();
     }
     public String unlocalized() {return unlocalized;}
+
+    public boolean legit() {
+        return StatCollector.canTranslate(unlocalized+".name");
+    }
 }

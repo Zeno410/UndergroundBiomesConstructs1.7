@@ -41,10 +41,6 @@ public abstract class BlockMetadataBase extends BlockStone {
             public void accept(Double newHardness) {
                 // we use the standard rather than the passed since we're having to cut back resistance
                 setHardness(1.5F*UndergroundBiomes.hardnessModifier());
-                // very bad programming practice but I should probably redo the whole system.
-                if (this.getClass().getName().contains("obble")) {
-                   setHardness(1.5F*UndergroundBiomes.hardnessModifier()*1.333F);
-                }
             }
         };
 
@@ -68,9 +64,13 @@ public abstract class BlockMetadataBase extends BlockStone {
             renderID = super.getRenderType();
         } catch (java.lang.NoSuchFieldError e) {
             renderID = super.getRenderType();
+        } catch (Error e) {
+            renderID = super.getRenderType();
         }
         UndergroundBiomes.instance().settings().hardnessModifier.informOnChange(this.hardnessUpdater);
+        hardnessUpdater.accept(UndergroundBiomes.instance().settings().hardnessModifier.value());
         UndergroundBiomes.instance().settings().resistanceModifier.informOnChange(this.resistanceUpdater);
+        resistanceUpdater.accept(UndergroundBiomes.instance().settings().resistanceModifier.value());
 
     }
 
@@ -114,7 +114,9 @@ public abstract class BlockMetadataBase extends BlockStone {
 
         if (target == null) return this.replaceableByOre;
         // this obnoxious call is needed because something is redoing ore placement without calling my routines
-        BiomeUndergroundDecorator.needsRedo(x, z, world);
+        if (!UndergroundBiomes.instance().settings().newGeneration.value()) {
+           //BiomeUndergroundDecorator.needsRedo(x, z, world);
+        }
         return this.replaceableByOre&&target.getUnlocalizedName().equals(Blocks.stone.getUnlocalizedName());
     }
     

@@ -60,25 +60,30 @@ import Zeno410Utils.PlayerDetector;
 import exterminatorJeff.undergroundBiomes.constructs.util.WatchList;
 
 import Zeno410Utils.Zeno410Logger;
+import cpw.mods.fml.common.IWorldGenerator;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.registry.GameData;
 import exterminatorJeff.undergroundBiomes.client.RenderUBOre;
+import exterminatorJeff.undergroundBiomes.intermod.ModOreManager;
 import exterminatorJeff.undergroundBiomes.network.PacketPipeline;
 import exterminatorJeff.undergroundBiomes.worldGen.BiomeUndergroundDecorator;
 import exterminatorJeff.undergroundBiomes.worldGen.OreUBifier;
 import java.io.File;
+import java.util.Random;
 import java.util.logging.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.WorldServer;
 
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.event.terraingen.OreGenEvent;
+import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import static java.lang.annotation.ElementType.*;
 
-@Mod(modid = "UndergroundBiomes", name = "Underground Biomes", version = "0.6h")
+@Mod(modid = "UndergroundBiomes", name = "Underground Biomes", version = "0.7")
 
-public class UndergroundBiomes{
+public class UndergroundBiomes implements IWorldGenerator{
     
     public UndergroundBiomes() {
         instance = this;
@@ -231,6 +236,7 @@ public class UndergroundBiomes{
     OreUBifier oreUBifier() {return oreUBifier;}
     public int ubOreRenderID() {return oreUBifier.getRenderID();}
     private OreUBifyRequester oreRequester = new OreUBifyRequester();
+    private ModOreManager modOreManager = new ModOreManager();
 
     private VanillaStoneRecipeManager vanillaStoneRecipeManager = new VanillaStoneRecipeManager(oreCobblestoneName());
     
@@ -268,6 +274,7 @@ public class UndergroundBiomes{
 
         oreUBifier = new OreUBifier(settings.ubOres);
         dimensionManager = new DimensionManager(settings,oreUBifier);
+        UBAPIHook.ubAPIHook.ubSetProviderRegistry = dimensionManager;
         
         config.save();
 
@@ -351,11 +358,15 @@ public class UndergroundBiomes{
         oreUBifier.setupUBOre(Blocks.lapis_ore,UBOreTexturizer.lapis_overlay, event);
         oreUBifier.setupUBOre(Blocks.emerald_ore,UBOreTexturizer.emerald_overlay, event);
         oreUBifier.setupUBOre(Blocks.gold_ore,UBOreTexturizer.gold_overlay, event);
+        oreUBifier.setupUBHidden(Blocks.monster_egg, event);
+
+        //modOreManager.register();
 
         oreRequester.fulfillRequests(event);
 
         defaultIDSetter = this.defaultIDs();
         FMLCommonHandler.instance().bus().register(this);
+        GameRegistry.registerWorldGenerator(this,10000);
         //FMLCommonHandler.instance().bus().register(new EventWatcher());
 
         pipeline= new PacketPipeline();
@@ -393,6 +404,7 @@ public class UndergroundBiomes{
         if (addOreDictRecipes()){
             oreDictifyStone();
         }
+        addRescueRecipes();
 
         // Pull nuggets from ore dictionary
         ArrayList<ItemStack> stacks;
@@ -436,11 +448,21 @@ public class UndergroundBiomes{
     public void serverLoad(FMLServerStartingEvent event) {
         //logger.info("server starting");
         event.registerServerCommand(new CommandOreDictifyStone());
+        try {
+            WorldServer server = event.getServer().worldServerForDimension(0);
+            File worldLocation = server.getChunkSaveLocation();
+            //UndergroundBiomes.logger.info(world.toString() + " " +worldLocation.getAbsolutePath());
+            configManager.setWorldFile(worldLocation);
+            this.dimensionManager.setupGenerators();
+        } catch (NullPointerException e) {
+            logger.info(e.toString());
+        }
     }
 
    @EventHandler
     public void serverLoaded(FMLServerStartedEvent event) {
         //logger.info("server starting");
+
         if (forceRemap) {
             this.forceConfigIDs();
             GameData.freezeData();
@@ -475,10 +497,11 @@ public class UndergroundBiomes{
     private boolean forceRemap;
     @EventHandler
     public void onMissingMapping(FMLMissingMappingsEvent event) {
+        if (1>0) return;
        logger.info("missing mappings");
        forceRemap = false;
         for (FMLMissingMappingsEvent.MissingMapping missing: event.get()) {
-            logger.info(missing.name + " " + missing.type.toString());
+            //logger.info(missing.name + " " + missing.type.toString());
             if (missing.name.equalsIgnoreCase("UndergroundBiomes:sedimentaryStoneItem")) forceRemap = true;
         }
     }
@@ -487,13 +510,14 @@ public class UndergroundBiomes{
     public void adjustMappings(FMLModIdMappingEvent event) {
 
         boolean oldIDs = false;
+        if (1>0) return;
         logger.info("remapping");
         ImmutableList<FMLModIdMappingEvent.ModRemapping> remappings =  event.remappedIds;
 
         Iterator<FMLModIdMappingEvent.ModRemapping> list = remappings.iterator();
         while (list.hasNext()) {
             FMLModIdMappingEvent.ModRemapping remapping = list.next();
-            logger.info(remapping.tag +  " from " + remapping.oldId + " to " +remapping.newId);
+            //logger.info(remapping.tag +  " from " + remapping.oldId + " to " +remapping.newId);
 
             // currently tags drop the fist letter
             if(remapping.tag.equals("inecraft:bed")){
@@ -516,19 +540,9 @@ public class UndergroundBiomes{
             if (remapping.tag.equals("UndergroundBiomes:stairs")) {
                 if (remapping.newId == constructs.stoneStairID()) oldIDs = true;
             }
-            if (remapping.tag.equals("UndergroundBiomes:igneousStone")) {
-                if (remapping.newId > 2000) oldIDs = true;
-            }
-            if (remapping.tag.equals("ndergroundBiomes:igneousStone")) {
-                if (remapping.newId> 2000) oldIDs = true;
-            }
-            if (remapping.tag.equals("UndergroundBiomes:metamorphicStone")) {
-                if (remapping.newId> 2000) oldIDs = true;
-            }
-            if (remapping.tag.equals("ndergroundBiomes:metamorphicStone")) {
-                if (remapping.newId> 2000) oldIDs = true;
-            }
         }
+        //do nothing if ID forcing is off
+        if (settings.forceConfigIds.value() == false) return;
         //logger.info("old IDs "+oldIDs);
         if (oldIDs) {
             this.forceConfigIDs();
@@ -573,7 +587,6 @@ public class UndergroundBiomes{
             }
             if (!buttonsOn()) {
                 GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(NamedVanillaBlock.stoneButton.block(), 1), oreStoneName()));
-
             }
         }
         
@@ -620,9 +633,39 @@ public class UndergroundBiomes{
             GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,3), new ItemStack(igneousCobblestoneSlab.half, 1,metadata)));
             GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,3), new ItemStack(metamorphicCobblestoneSlab.half, 1,metadata)));
         }
+    }
+
+    private void addRescueRecipes() {
+                // rescue recipes
+        //metamorphic stone
         for (int metadata = 0; metadata< 8; metadata++) {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,5), new ItemStack(igneousBrickSlab.half, 1,metadata)));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_slab, 1,5), new ItemStack(metamorphicBrickSlab.half, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_button, 1,0), new ItemStack(constructs.stoneButton().construct, 1,metadata)));
+        }
+        //metamorphic cobblestone
+        for (int metadata = 8; metadata< 8+8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_stairs, 1,0), new ItemStack(constructs.stoneStair().construct, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.cobblestone_wall, 1,0), new ItemStack(constructs.stoneWall().construct, 1,metadata)));
+        }
+        //metamorphic brick
+        for (int metadata = 16; metadata< 16+8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_brick_stairs, 1,0), new ItemStack(constructs.stoneStair().construct, 1,metadata)));
+        }
+        //igneous stone
+        for (int metadata = 24; metadata< 24+8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_button, 1,0), new ItemStack(constructs.stoneButton().construct, 1,metadata)));
+        }
+        //igneous cobblestone
+        for (int metadata = 32; metadata< 32+8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_stairs, 1,0), new ItemStack(constructs.stoneStair().construct, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.cobblestone_wall, 1,0), new ItemStack(constructs.stoneWall().construct, 1,metadata)));
+        }
+        //igneous brick
+        for (int metadata = 40; metadata< 40+8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_brick_stairs, 1,0), new ItemStack(constructs.stoneStair().construct, 1,metadata)));
+        }
+        //sedimentary stone
+        for (int metadata = 48; metadata< 48+8; metadata++) {
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_button, 1,0), new ItemStack(constructs.stoneButton().construct, 1,metadata)));
         }
 
     }
@@ -635,6 +678,11 @@ public class UndergroundBiomes{
         OreDictionary.registerOre(oreCobblestoneName(), new ItemStack(metamorphicCobblestone, 1, WILDCARD_VALUE));
         OreDictionary.registerOre("stoneBricks", new ItemStack(igneousStoneBrick, 1, WILDCARD_VALUE));
         OreDictionary.registerOre("stoneBricks", new ItemStack(metamorphicStoneBrick, 1, WILDCARD_VALUE));
+        for (int i = 0; i < 0; i++ ) {
+            OreDictionary.registerOre("stone", new ItemStack(igneousStone, 1, i));
+            OreDictionary.registerOre("stone", new ItemStack(metamorphicStone, 1, i));
+            OreDictionary.registerOre("stone", new ItemStack(sedimentaryStone, 1, i));
+        }
         //OreDictionary.registerOre(textures, ore);
         this.oreUBifier.registerOres();
     }
@@ -691,6 +739,7 @@ public class UndergroundBiomes{
                 continue;
             }
             // supress alterations overriding construct recipes
+            if (obj == null) continue;
             if (UndergroundBiomesConstructs.overridesRecipe((IRecipe)obj)) continue;
 
             if (obj instanceof ShapedRecipes)
@@ -706,7 +755,11 @@ public class UndergroundBiomes{
             else if (obj instanceof ShapelessRecipes)
             {
                 ShapelessRecipes recipe = (ShapelessRecipes)obj;
-                if (containsMatch(true, (ItemStack[])recipe.recipeItems.toArray(new ItemStack[recipe.recipeItems.size()]), replaceStacks))
+                List recipeItems = recipe.recipeItems;
+                if (recipeItems == null) continue;
+                if (containsMatch(true, 
+                        (ItemStack[])recipeItems.toArray(
+                        new ItemStack[recipeItems.size()]), replaceStacks))
                 {
                     recipes.set(i, (ShapelessOreRecipe)shapelessConstr.newInstance(recipe, replacements));
                     numReplaced++;
@@ -732,7 +785,9 @@ public class UndergroundBiomes{
                 }
             }
         }
-        //CraftingManager.getInstance().addShapelessRecipe(new ItemStack(NamedVanillaBlock.stoneButton.block()), new Object[] {NamedVanillaBlock.stone.block()});
+
+
+        CraftingManager.getInstance().addShapelessRecipe(new ItemStack(NamedVanillaBlock.stoneButton.block()), new Object[] {NamedVanillaBlock.stone.block()});
 
         return numReplaced;
     }
@@ -808,20 +863,27 @@ public class UndergroundBiomes{
         return dimensionManager.inChunkGenerationAllowed(id);
     }
 
+    public void generate(Random arg0, int x, int z, World world, IChunkProvider arg4, IChunkProvider arg5) {
+        redoOres(x*16,z*16,world);
+    }
     
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
-        if (world instanceof WorldServer) {
+        /*if (world instanceof WorldServer) {
             WorldServer server = (WorldServer)world;
-            File worldLocation = server.getChunkSaveLocation().getParentFile();
-            //UndergroundBiomes.logger.info(world.toString() + " " +worldLocation.getAbsolutePath());
-            configManager.setWorldFile(worldLocation);
-            this.dimensionManager.setupGenerators(event);
-        }
+            if (world.provider.dimensionId == 0) {
+              File worldLocation = server.getChunkSaveLocation().getParentFile();
+               //UndergroundBiomes.logger.info(world.toString() + " " +worldLocation.getAbsolutePath());
+               configManager.setWorldFile(worldLocation);
+            }
+            this.dimensionManager.setupGenerators();
+        }*/
         if (!gotWorldSeed) {
             world = event.world;
-            worldSeed = world.getSeed();
-            gotWorldSeed = true;
+            if (world.provider.dimensionId == 0) {
+                worldSeed = world.getSeed();
+                gotWorldSeed = true;
+            }
         }
         tabModBlocks.item = ItemMetadataBlock.itemFrom(UBIDs.igneousStoneBrickName);
     }
@@ -836,7 +898,15 @@ public class UndergroundBiomes{
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void onBiomeDecorate(DecorateBiomeEvent.Post event)    {
+        //logger.info("decorate "+event.chunkX + "," + event.chunkZ);
+        //dimensionManager.onBiomeDecorate(event);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onBiomePopulate(PopulateChunkEvent.Post event)    {
+        //logger.info("decorate "+event.chunkX + "," + event.chunkZ);
         dimensionManager.onBiomeDecorate(event);
+        dimensionManager.redoOres(event.chunkX*16, event.chunkZ*16, event.world);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -945,6 +1015,8 @@ public class UndergroundBiomes{
     }
 
     private void forceConfigIDs() {
+
+        if (1>0) throw new RuntimeException();
         WatchList forcing = configList();
         try {
             for (String warning: forcing.problems()) {

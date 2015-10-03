@@ -1,6 +1,11 @@
 
 package exterminatorJeff.undergroundBiomes.common.block;
 
+/**
+ *
+ * @author Zeno410
+ */
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
@@ -12,7 +17,6 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -21,64 +25,37 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldSettings;
 
 /**
  *
  * @author Zeno410
  */
-public class BlockUBOre extends Block implements BlockUBReplaceable {
+public class BlockUBHidden extends Block implements BlockUBReplaceable {
 
     protected final BlockMetadataBase stone;
     protected final Block ore;
-    private final BlockOverlay overlay;
-    private Mutable<Integer> renderIDSource;
-    protected ShamWorld shamWorld;
     private final MinecraftName oreName;
 
-    public BlockUBOre(BlockMetadataBase stone, final Block ore, BlockOverlay overlay, Mutable<Integer> renderIDSource) {
-        this(stone,ore,overlay,renderIDSource,new MinecraftName(ore.getUnlocalizedName()));
+    public BlockUBHidden(BlockMetadataBase stone, final Block ore) {
+        this(stone,ore,new MinecraftName(ore.getUnlocalizedName()));
     }
 
-    public BlockUBOre(BlockMetadataBase stone, Block ore, BlockOverlay overlay,
-            Mutable<Integer> renderIDSource,MinecraftName oreName) {
+    public BlockUBHidden(BlockMetadataBase stone, Block ore,MinecraftName oreName) {
         super(Material.rock);
         this.stone = stone;
         this.ore = ore;
         if (ore instanceof BlockUBOre) {
             throw new RuntimeException();
         }
-        this.renderIDSource = renderIDSource;
-        if (renderIDSource == null) {
-            if (UndergroundBiomes.crashOnProblems()) throw new RuntimeException();
-        }
+
         //renderIDSource = null;
-        this.overlay = overlay;
         this.setCreativeTab(UndergroundBiomes.tabModBlocks);
         this.oreName = oreName;
-
     }
-
+    
     public Block block() {return this;}
-
-    @Override
-    public int getRenderType() {
-        if (renderIDSource == null) return 0;
-        Integer result = renderIDSource.value();
-        if (result == null) return 0;
-        return result;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerBlockIcons(IIconRegister iconRegister){
-        // Block icons registered by UB blocks.
-        // overlay doesn't get its icon registered because *it* doesn't get registered;
-        overlay.registerBlockIcons(iconRegister);
-    }
 
     @SideOnly(Side.CLIENT)
     @Override
@@ -112,12 +89,11 @@ public class BlockUBOre extends Block implements BlockUBReplaceable {
     }
 
     public String getDisplayName(int meta) {
-        return StatCollector.translateToLocal(stone.getUnlocalizedName()+"."
-                +stone.getBlockName(meta)+".name")+ " " + oreName.localized();
+        return stone.getBlockName(meta);
     }
 
     public String getUnlocalizedName(int meta) {
-        return stone.getBlockName(meta)+ "."+ oreName.unlocalized();
+        return stone.getBlockName(meta);
     }
 
     @Override
@@ -175,7 +151,7 @@ public class BlockUBOre extends Block implements BlockUBReplaceable {
     public boolean canHarvestBlock(EntityPlayer player, int meta) {
         return ore.canHarvestBlock(player, 0);
     }
-    
+
     @Override
     public void updateTick(World p_149674_1_, int p_149674_2_, int p_149674_3_, int p_149674_4_, Random p_149674_5_) {
         ore.updateTick(p_149674_1_, p_149674_2_, p_149674_3_, p_149674_4_, p_149674_5_);
@@ -199,41 +175,13 @@ public class BlockUBOre extends Block implements BlockUBReplaceable {
     }
 
     @Override
-    public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer) {
-        return super.addDestroyEffects(world, x, y, z, meta, effectRenderer);
-    }
-    
-    @Override
-    public int getHarvestLevel(int metadata) {
-        return ore.getHarvestLevel(0);
+    public void onBlockDestroyedByPlayer(World p_149664_1_, int p_149664_2_, int p_149664_3_, int p_149664_4_, int p_149664_5_) {
+        ore.onBlockDestroyedByPlayer(p_149664_1_, p_149664_2_, p_149664_3_, p_149664_4_, p_149664_5_);
     }
 
     @Override
-    public String getHarvestTool(int metadata) {
-        return ore.getHarvestTool(0);
-    }
-
-    @Override
-    public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z) {        int metadata = world.getBlockMetadata(x, y, z);
-        float hardness = getBlockHardness(world, x, y, z);
-        if (hardness < 0.0F)
-        {
-            return 0.0F;
-        }
-
-        if (!canHarvestBlock(player, metadata))
-        {
-            return player.getBreakSpeed(this, true, metadata, x, y, z) / hardness / 100F;
-        }
-        else
-        {
-            return player.getBreakSpeed(this, false, metadata, x, y, z) / hardness / 30F;
-        }
-    }
-    
-    @Override
-    public void onBlockClicked(World p_149699_1_, int p_149699_2_, int p_149699_3_, int p_149699_4_, EntityPlayer p_149699_5_) {
-        ore.onBlockClicked(p_149699_1_, p_149699_2_, p_149699_3_, p_149699_4_, p_149699_5_);
+    public boolean onBlockEventReceived(World p_149696_1_, int p_149696_2_, int p_149696_3_, int p_149696_4_, int p_149696_5_, int p_149696_6_) {
+        return ore.onBlockEventReceived(p_149696_1_, p_149696_2_, p_149696_3_, p_149696_4_, p_149696_5_, p_149696_6_);
     }
 
 }

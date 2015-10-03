@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.util.LongHashMap;
-import exterminatorJeff.undergroundBiomes.worldGen.BiomeGenUndergroundBase;
+import exterminatorJeff.undergroundBiomes.api.BiomeGenUndergroundBase;
 import exterminatorJeff.undergroundBiomes.worldGen.BiomeUndergroundCacheBlock;
 
 public class UBiomeCache{

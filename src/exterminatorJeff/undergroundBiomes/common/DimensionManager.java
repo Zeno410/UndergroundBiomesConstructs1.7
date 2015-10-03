@@ -1,13 +1,16 @@
 package exterminatorJeff.undergroundBiomes.common;
 
 import Zeno410Utils.Acceptor;
+import exterminatorJeff.undergroundBiomes.api.UndergroundBiomeSetProvider;
 import exterminatorJeff.undergroundBiomes.api.UndergroundBiomesSettings;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
+import java.util.Random;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -28,8 +31,11 @@ import exterminatorJeff.undergroundBiomes.constructs.util.Consumable;
 import exterminatorJeff.undergroundBiomes.constructs.util.DimensionSet;
 import Zeno410Utils.Zeno410Logger;
 
+import cpw.mods.fml.common.IWorldGenerator;
+import exterminatorJeff.undergroundBiomes.api.UBSetProviderRegistry;
 import exterminatorJeff.undergroundBiomes.worldGen.OreUBifier;
-import exterminatorJeff.undergroundBiomes.worldGen.UndergroundBiomeSet;
+import exterminatorJeff.undergroundBiomes.worldGen.StandardUndergroundBiomeSet;
+import exterminatorJeff.undergroundBiomes.api.UndergroundBiomeSet;
 import java.util.logging.Logger;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -38,7 +44,7 @@ import net.minecraftforge.event.terraingen.PopulateChunkEvent;
  *
  * @author Zeno410
  */
-public class DimensionManager {
+public class DimensionManager implements UBSetProviderRegistry{
 
     public static Logger logger = new Zeno410Logger("DimensionManager").logger();
 
@@ -73,9 +79,21 @@ public class DimensionManager {
     private List<Integer> inChunkDimensionIDs = new ArrayList<Integer>();
 
     private UndergroundBiomeSet cachedBiomeSet;
-    private UndergroundBiomeSet biomeSet() {
-        if (cachedBiomeSet == null) cachedBiomeSet = new UndergroundBiomeSet();
-        return cachedBiomeSet;
+    private HashMap<Integer,UndergroundBiomeSet> dimensionalBiomeSets = new HashMap<Integer,UndergroundBiomeSet>();
+    private UndergroundBiomeSet biomeSet(int dimension) {
+        UndergroundBiomeSet result = dimensionalBiomeSets.get(dimension);
+        // set result to default if necessary
+        if (result == null) {
+            if (cachedBiomeSet == null) cachedBiomeSet = new StandardUndergroundBiomeSet();
+            result = cachedBiomeSet;
+        }
+        // call the set providers to allow changes
+        for (UndergroundBiomeSetProvider provider: this.ubSetProviders) {
+            UndergroundBiomeSet changedResult =
+                    provider.modifiedBiomeSet(dimension, dimensionSeed(dimension), result);
+            if (changedResult != null) result = changedResult;
+        }
+        return result;
     }
 
     private final OreUBifier oreUBifier;
@@ -91,7 +109,12 @@ public class DimensionManager {
         if (result == null) {
             // hasn't been made yet; make and store it
             oreUBifier.renewBlockReplacers();
-            result = new WorldGenManager(dimensionSeed(dimension),dimension,oreUBifier,biomeSet());
+            result = new WorldGenManager(
+                    dimensionSeed(dimension),
+                    dimension,
+                    oreUBifier,
+                    biomeSet(dimension),
+                    ubGenerationAllowed(dimension));
             worldGenManagers.put(dimension, result);
         }
         return result;
@@ -149,10 +172,38 @@ public class DimensionManager {
         }
     }
 
+    public void onBiomeDecorate(PopulateChunkEvent.Post event)    {
+        // this is the method to change stones if inChunkGeneration is off
+        // onWorldLoad modifies existing ChunkProviderGenerator if it is on
 
-    public void setupGenerators(WorldEvent.Load event) {
+        //skip if UB is off
+        if (UndergroundBiomes.instance().settings().ubActive.value() == false) return;
+        int id = event.world.provider.dimensionId;
+
+
+        // do nothing if we're not supposed to UB this dimension
+        if (!includeDimensionIDs.isIncluded(id, excludeDimensionIDs)) return;
+
+        // Sometimes can get called before onWorldLoad, wtf?
+        WorldGenManager worldGen = worldGenManager(id);
+        if (worldGen == null) {
+            System.out.println("UndergroundBiomes warning: onBiomeDecorate before onWorldLoad! Ignoring.");
+            return;
+        }
+        //logger.info("decorating dimension "+ id );
+
+                // do nothing if being handled by in-chunk method
+        if (inChunkDimensionIDs.contains(id)) {
+            worldGen.decorateIfNeeded(event);
+        } else {
+            worldGen.onBiomeDecorate(event);
+        }
+    }
+
+    public void setupGenerators() {
 
         int id;
+        if (UndergroundBiomes.instance().settings().ubActive.value() == false) return;
         try {
             MinecraftServer server = MinecraftServer.getServer();
             if (server == null) return;
@@ -196,7 +247,8 @@ public class DimensionManager {
         inChunkDimensionIDs = new ArrayList<Integer>();
         serverAdjusted = false;
         worldGenManagers = new HashMap<Integer,WorldGenManager>();
-        cachedBiomeSet = null;
+        this.ubSetProviders = new ArrayList<UndergroundBiomeSetProvider>();
+        this.cachedBiomeSet = null;
     }
 
     public boolean inChunkGenerationAllowed(int id) {
@@ -211,10 +263,19 @@ public class DimensionManager {
         return true;
     }
 
+    public boolean ubGenerationAllowed(int id) {
+
+        // no if we're not supposed to UB this dimension
+        if (!includeDimensionIDs.isIncluded(id, excludeDimensionIDs)) return false;
+
+        return true;
+    }
+
     // this is not affected by whether inChunkGeneration is on
     @SubscribeEvent
     public void preBiomeDecorate(DecorateBiomeEvent.Pre event) {
         // this currently just saves the filler block to the VillageStoneChanger
+        if (UndergroundBiomes.instance().settings().ubActive.value() == false) return;
         int id = event.world.provider.dimensionId;
         villageWorldGenManager = worldGenManager(id);
         if (UndergroundBiomes.instance().gotWorldSeed()) {
@@ -225,6 +286,7 @@ public class DimensionManager {
     @SubscribeEvent
     public void prePopulateChunk(PopulateChunkEvent.Pre event) {
         // this currently just saves the filler block to the VillageStoneChanger
+        if (UndergroundBiomes.instance().settings().ubActive.value() == false) return;
         int id = event.world.provider.dimensionId;
         villageWorldGenManager = worldGenManager(id);
         if (UndergroundBiomes.instance().gotWorldSeed()) {
@@ -234,14 +296,23 @@ public class DimensionManager {
 
     @SubscribeEvent
     public void onVillageSelectBlock(GetVillageBlockID e){
+        if (UndergroundBiomes.instance().settings().ubActive.value() == false) return;
         if (villageWorldGenManager == null) return;
         if (UndergroundBiomes.instance().gotWorldSeed()) villageWorldGenManager.onVillageSelectBlock(e);
     }
 
     @SubscribeEvent
     public void onVillageSelectMeta(GetVillageBlockMeta e){
+        if (UndergroundBiomes.instance().settings().ubActive.value() == false) return;
         if (villageWorldGenManager == null) return;
         if (UndergroundBiomes.instance().gotWorldSeed()) villageWorldGenManager.onVillageSelectMeta(e);
+    }
+
+    private ArrayList<UndergroundBiomeSetProvider> ubSetProviders =
+            new ArrayList<UndergroundBiomeSetProvider>();
+
+    public void register(UndergroundBiomeSetProvider toRegister) {
+        ubSetProviders.add(toRegister);
     }
 
     private class StrataColumnProvider implements UBDimensionalStrataColumnProvider {
@@ -251,9 +322,13 @@ public class DimensionManager {
     }
 
     public void redoOres(int x, int z, World world) {
+        if (UndergroundBiomes.instance().settings().ubActive.value() == false) return;
+        if (UndergroundBiomes.instance().settings().ubOres.value() == false) return;
         WorldGenManager worldGenManager = worldGenManagers.get(world.provider.dimensionId);
         if (worldGenManager != null) {
-            worldGenManager.redoOres(x, z, world);
+            if (this.ubGenerationAllowed(worldGenManager.dimension)) {
+                worldGenManager.redoOres(x, z, world);
+            }
         } else UndergroundBiomes.logger.info("no manager for "+world.toString());
     }
 

@@ -38,7 +38,7 @@ public class OreUBifyRequester implements UBOreTexturizer {
 
     @Deprecated
     public void requestUBOreSetup(Block oreBlock, int metadata, String overlayName) throws BlocksAreAlreadySet {
-        logger.info("setup request for "+oreBlock.getLocalizedName());
+        logger.info("setup request for "+oreBlock.getLocalizedName()+ " "+overlayName);
         assert(oreBlock != null);
         assert(metadata >=0);
         assert(metadata < 16);
@@ -56,13 +56,21 @@ public class OreUBifyRequester implements UBOreTexturizer {
     }
 
     public void requestUBOreSetup(Block oreBlock, int metadata, String overlayName, String blockName) throws BlocksAreAlreadySet {
-        logger.info("setup request for "+oreBlock.getLocalizedName());
+        logger.info("setup request for "+oreBlock.getLocalizedName()+ " : "+blockName + " " + overlayName);
         assert(oreBlock != null);
         assert(metadata >=0);
         assert(metadata < 16);
         assert(overlayName != null);
+        MinecraftName properName = new MinecraftName(blockName);
+        if (!properName.legit()) {
+            properName = minecraftName(oreBlock, metadata);
+            if (!properName.legit()) {
+                new MinecraftName(blockName);
+                logger.info(blockName +" not found in the language tables");
+            }
+        }
         logger.info("request OK");
-        waitingRequests.add(new UBifyRequestWithMetadata(oreBlock,metadata,overlayName, new MinecraftName(blockName)));
+        waitingRequests.add(new UBifyRequestWithMetadata(oreBlock,metadata,overlayName,properName));
     }
     
     private class UBifyRequest {
@@ -127,8 +135,12 @@ public class OreUBifyRequester implements UBOreTexturizer {
 
     private static MinecraftName minecraftName(Block block, int meta) {
         if (block instanceof MetalBlock) {
+            logger.info(((MetalBlock)block).getUnlocalizedName(meta) + " " + meta);
+            logger.info(((MetalBlock)block).getUnlocalizedName(0) + " " + 0);
+            logger.info(((MetalBlock)block).getUnlocalizedName(1) + " " + 1);
+            logger.info(((MetalBlock)block).getUnlocalizedName(2) + " " + 2);
             return new MinecraftName(((MetalBlock)block).getUnlocalizedName(meta));
         }
-        throw new RuntimeException();
+        return new MinecraftName(block.getUnlocalizedName());
     }
 }

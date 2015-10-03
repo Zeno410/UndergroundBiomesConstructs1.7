@@ -44,6 +44,7 @@ public interface UBOreTexturizer {
     public static String redstone_overlay = "undergroundbiomes:redstone_overlay";
     public static String ruby_overlay = "undergroundbiomes:ruby_overlay";
     public static String sapphire_overlay = "undergroundbiomes:sapphire_overlay";
+    public static String silver_overlay = "undergroundbiomes:silver_overlay";
     public static String tin_overlay = "undergroundbiomes:tin_overlay";
     public static String uranium_overlay = "undergroundbiomes:uranium_overlay";
 

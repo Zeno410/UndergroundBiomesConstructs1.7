@@ -1,5 +1,6 @@
 package exterminatorJeff.undergroundBiomes.worldGen;
 
+import exterminatorJeff.undergroundBiomes.api.UndergroundBiomeSet;
 import net.minecraft.world.gen.layer.*;
 
 import exterminatorJeff.undergroundBiomes.common.WorldGenManager;

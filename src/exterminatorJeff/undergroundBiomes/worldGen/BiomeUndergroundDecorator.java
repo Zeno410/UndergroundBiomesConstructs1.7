@@ -1,5 +1,7 @@
 package exterminatorJeff.undergroundBiomes.worldGen;
 
+import exterminatorJeff.undergroundBiomes.api.UBStoneCodes;
+import exterminatorJeff.undergroundBiomes.api.BiomeGenUndergroundBase;
 import Zeno410Utils.Accessor;
 import Zeno410Utils.BlockLocation;
 import Zeno410Utils.BlockLocationProbe;
@@ -34,6 +36,7 @@ import java.util.logging.Logger;
 import net.minecraft.world.biome.BiomeDecorator;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+import biomesoplenty.api.biome.BOPInheritedBiome;
 
 public class BiomeUndergroundDecorator {
 
@@ -150,6 +153,7 @@ public class BiomeUndergroundDecorator {
     public void replaceOresForUndergroundBiome(int par_x, int par_z, World currentWorld) {
         // currently not used
         if (worldGen.ubOn() == false ) return;
+        if (this.oreUBifier.replacementActive()==false) return;
         BlockLocation chunkLocation = new BlockLocation(par_x,par_z, currentWorld.provider.dimensionId);
         // abort if this chunk is already being generated
         if (this.beingGenerated.contains(chunkLocation)) return;
@@ -157,8 +161,6 @@ public class BiomeUndergroundDecorator {
         int generationHeight = UndergroundBiomes.generateHeight();
         BiomeGenUndergroundBase[] undergroundBiomesForGeneration= new BiomeGenUndergroundBase[256];
         undergroundBiomesForGeneration = worldGen.loadUndergroundBlockGeneratorData(undergroundBiomesForGeneration, par_x, par_z, 16, 16);
-
-        //logger.info("redo ores chunk "+par_x+ " " + par_z);
         for(int x = par_x; x < par_x + 16; x++)
         {
             for(int z = par_z; z < par_z + 16; z++)
@@ -211,7 +213,7 @@ public class BiomeUndergroundDecorator {
         BlockLocation chunkLocation = new BlockLocation(par_x,par_z, currentWorld.provider.dimensionId);
         // abort if this chunk is already being generated
         if (this.beingGenerated.contains(chunkLocation)) {
-            //if (UndergroundBiomes.crashOnProblems()) throw new RuntimeException();
+            if (UndergroundBiomes.crashOnProblems()) throw new RuntimeException();
         }
         CurrentWorldMemento memento = this.currentWorldManager.memento();
         beingGenerated.add(chunkLocation);
@@ -403,6 +405,11 @@ public class BiomeUndergroundDecorator {
         } catch (java.lang.NoClassDefFoundError e) {
             // no Highlands; nothing to do;
         }
+        try {
+            this.correctors.add(new BoPDecoratorCorrector());
+        } catch (java.lang.NoClassDefFoundError e) {
+            // no BoP; nothing to do;
+        }
 
     }
 
@@ -411,6 +418,17 @@ public class BiomeUndergroundDecorator {
 
         public BiomeDecorator corrected(BiomeGenBase biome, BiomeDecorator currentDecorator) {
             if ((currentDecorator.getClass().equals(standardDecoratorClass))) {
+                return new CorrectedBiomeDecorator(currentDecorator);
+            }
+            return currentDecorator;
+        }
+    }
+
+    private class BoPDecoratorCorrector implements BiomeDecoratorCorrector {
+        Class standardDecoratorClass = BiomeDecorator.class;
+
+        public BiomeDecorator corrected(BiomeGenBase biome, BiomeDecorator currentDecorator) {
+            if ((currentDecorator.getClass().getName().contains("BoP"))&&!(currentDecorator instanceof CorrectedBiomeDecorator))  {
                 return new CorrectedBiomeDecorator(currentDecorator);
             }
             return currentDecorator;

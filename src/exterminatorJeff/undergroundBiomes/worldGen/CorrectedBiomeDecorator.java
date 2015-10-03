@@ -2,9 +2,11 @@
 package exterminatorJeff.undergroundBiomes.worldGen;
 
 import java.util.Random;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeDecorator;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.gen.feature.WorldGenFlowers;
 
 /**
  *
@@ -44,13 +46,21 @@ public class CorrectedBiomeDecorator extends BiomeDecorator {
         this.treesPerChunk = toCorrect.treesPerChunk;
         this.waterlilyGen = toCorrect.waterlilyGen;
         this.waterlilyPerChunk = toCorrect.waterlilyPerChunk;
-        this.yellowFlowerGen = toCorrect.yellowFlowerGen;
+        if (toCorrect.yellowFlowerGen != null) {
+            this.yellowFlowerGen = toCorrect.yellowFlowerGen;
+        }
     }
     @Override
     public void decorateChunk(World p_150512_1_, Random p_150512_2_, BiomeGenBase p_150512_3_, int p_150512_4_, int p_150512_5_) {
         World wasDecorating = currentWorld;
         Random randomizer= this.randomGenerator;
         currentWorld = null;
+        if (this.yellowFlowerGen == null) {
+            this.yellowFlowerGen = new WorldGenFlowers(Blocks.yellow_flower);
+        }
+        if (super.yellowFlowerGen == null) {
+            super.yellowFlowerGen = new WorldGenFlowers(Blocks.yellow_flower);
+        }
         super.decorateChunk(p_150512_1_, p_150512_2_, p_150512_3_, p_150512_4_, p_150512_5_);
         currentWorld = wasDecorating;
         randomGenerator = randomizer;

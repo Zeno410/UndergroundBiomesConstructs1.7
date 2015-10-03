@@ -1,8 +1,8 @@
 package exterminatorJeff.undergroundBiomes.worldGen;
 
+import exterminatorJeff.undergroundBiomes.api.BiomeGenUndergroundBase;
+import exterminatorJeff.undergroundBiomes.api.UndergroundBiomeSet;
 import net.minecraft.world.gen.layer.*;
-
-import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
 
 public class GenLayerUndergroundBiomes extends GenLayer{
     /** this sets all the biomes that are allowed to appear in the overworld */
@@ -10,36 +10,7 @@ public class GenLayerUndergroundBiomes extends GenLayer{
 
     public GenLayerUndergroundBiomes(long par1, GenLayer par3GenLayer, UndergroundBiomeSet biomeSet) {
         super(par1);
-        if (!UndergroundBiomes.vanillaStoneBiomes()) {
-            this.allowedBiomes = new BiomeGenUndergroundBase[] {biomeSet.igneous1, biomeSet.igneous2,
-                    biomeSet.igneous3, biomeSet.igneous4,
-                    biomeSet.igneous5, biomeSet.igneous6, biomeSet.igneous7,
-                    biomeSet.igneous8, biomeSet.igneous9, biomeSet.igneous10,
-                    biomeSet.igneous11, biomeSet.igneous12, biomeSet.igneous13,
-                    biomeSet.igneous14, biomeSet.igneous15, biomeSet.igneous16,
-                    biomeSet.metamorphic1, biomeSet.metamorphic2, biomeSet.metamorphic3,
-                    biomeSet.metamorphic4, biomeSet.metamorphic5, biomeSet.metamorphic6,
-                    biomeSet.metamorphic7, biomeSet.metamorphic8, biomeSet.metamorphic9,
-                    biomeSet.metamorphic10, biomeSet.metamorphic11, biomeSet.metamorphic12,
-                    biomeSet.metamorphic13, biomeSet.metamorphic14, biomeSet.metamorphic15,
-                    biomeSet.metamorphic16};
-        } else {
-            this.allowedBiomes = new BiomeGenUndergroundBase[] {biomeSet.igneous1, biomeSet.igneous2,
-                    biomeSet.igneous3, biomeSet.igneous4,
-                    biomeSet.igneous5, biomeSet.igneous6, biomeSet.igneous7,
-                    biomeSet.igneous8, biomeSet.igneous9, biomeSet.igneous10,
-                    biomeSet.igneous11, biomeSet.igneous12, biomeSet.igneous13,
-                    biomeSet.igneous14, biomeSet.igneous15, biomeSet.igneous16,
-                    biomeSet.metamorphic1, biomeSet.metamorphic2, biomeSet.metamorphic3,
-                    biomeSet.metamorphic4, biomeSet.metamorphic5, biomeSet.metamorphic6,
-                    biomeSet.metamorphic7, biomeSet.metamorphic8, biomeSet.metamorphic9,
-                    biomeSet.metamorphic10, biomeSet.metamorphic11, biomeSet.metamorphic12,
-                    biomeSet.metamorphic13, biomeSet.metamorphic14, biomeSet.metamorphic15,
-                    biomeSet.metamorphic16,
-                    biomeSet.vanillaStone1, biomeSet.vanillaStone2,
-                    biomeSet.vanillaStone3, biomeSet.vanillaStone4
-                    };
-        }
+        allowedBiomes = biomeSet.allowedBiomes();
         this.parent = par3GenLayer;
 
     }

@@ -15,14 +15,15 @@ import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 
 import Zeno410Utils.PlaneLocation;
 import Zeno410Utils.Accessor;
-import exterminatorJeff.undergroundBiomes.worldGen.BiomeGenUndergroundBase;
+import Zeno410Utils.Bomb;
+import exterminatorJeff.undergroundBiomes.api.BiomeGenUndergroundBase;
 import exterminatorJeff.undergroundBiomes.worldGen.BiomeUndergroundCacheBlock;
 import exterminatorJeff.undergroundBiomes.worldGen.BiomeUndergroundDecorator;
 import exterminatorJeff.undergroundBiomes.worldGen.GenLayerUnderground;
 import net.minecraftforge.event.terraingen.BiomeEvent.GetVillageBlockID;
 import net.minecraftforge.event.terraingen.BiomeEvent.GetVillageBlockMeta;
 import exterminatorJeff.undergroundBiomes.worldGen.UBChunkProvider;
-import exterminatorJeff.undergroundBiomes.worldGen.UndergroundBiomeSet;
+import exterminatorJeff.undergroundBiomes.api.UndergroundBiomeSet;
 import exterminatorJeff.undergroundBiomes.worldGen.VillageStoneChanger;
 
 
@@ -64,9 +65,11 @@ public class WorldGenManager {
 
     private UndergroundBiomeSet biomeSet;
 
-    public boolean ubOn() {return UndergroundBiomes.instance().settings().ubActive.value();}
+    public boolean ubOn() {return ubOn;}
 
-    public WorldGenManager(long par1, int _dimension,OreUBifier oreUBifier, UndergroundBiomeSet biomeSet){
+    private final boolean ubOn;
+
+    public WorldGenManager(long par1, int _dimension,OreUBifier oreUBifier, UndergroundBiomeSet biomeSet, boolean ubOn){
 
         dimension = _dimension;
         seed = par1;
@@ -94,6 +97,9 @@ public class WorldGenManager {
 
         villageStoneSource = new BiomeUndergroundDecorator(this,oreUBifier);
         villageStoneChanger = new VillageStoneChanger();
+
+        this.ubOn = ubOn;
+
     }
 
     public boolean inChunkGenerationAllowed() {
@@ -128,6 +134,10 @@ public class WorldGenManager {
 
     public void onBiomeDecorate(DecorateBiomeEvent.Post event){
         this.villageStoneSource.decorate(event.world, event.rand, event.chunkX, event.chunkZ);
+    }
+
+    public void onBiomeDecorate(PopulateChunkEvent.Post event){
+        this.villageStoneSource.decorate(event.world, event.rand, event.chunkX*16, event.chunkZ*16);
     }
 
     public void onBiomeReplaceOres(DecorateBiomeEvent.Post event){
@@ -188,7 +198,7 @@ public class WorldGenManager {
             int[] var7 = this.undergroundBiomeIndexLayer.getInts(par2, par3, par4, par5);
                 for (int var8 = 0; var8 < par4 * par5; ++var8){
                     biomesArray[var8] = biomeSet.biomeList[var7[var8]];
-                    if (biomesArray[var8].strata[0]==null) throw new RuntimeException();
+                    //if (biomesArray[var8].strata[0]==null) throw new RuntimeException();
                 }
            return biomesArray;
     }
@@ -199,6 +209,18 @@ public class WorldGenManager {
 
     public void decorateIfNeeded(DecorateBiomeEvent.Post event) {
         PlaneLocation target = new PlaneLocation(event.chunkX/16, event.chunkZ/16);
+        if (alreadyGenerated.contains(target))  {
+             // take it out of the generated list
+            alreadyGenerated.remove(target);
+            //this.onBiomeReplaceOres(event);
+        } else {
+            // needs generation
+           onBiomeDecorate(event);
+        }
+    }
+
+    public void decorateIfNeeded(PopulateChunkEvent.Post event) {
+        PlaneLocation target = new PlaneLocation(event.chunkX, event.chunkZ);
         if (alreadyGenerated.contains(target))  {
              // take it out of the generated list
             alreadyGenerated.remove(target);
@@ -284,7 +306,8 @@ public class WorldGenManager {
         } else {
             if ((currentProvider instanceof ChunkProviderGenerate)
                     ||(currentProvider.getClass().getName().contains("ChunkProviderBOP")
-                    ||(currentProvider.getClass().getName().contains("BWG4ChunkProvider")))){
+                    ||(currentProvider.getClass().getName().contains("ChunkProviderTwilightForest")
+                    ||(currentProvider.getClass().getName().contains("BWG4ChunkProvider"))))){
                 providerFromChunkServer.setField(currentServer,
                     new UBChunkProvider(currentProvider,this.villageStoneSource,this.dimension));
             }

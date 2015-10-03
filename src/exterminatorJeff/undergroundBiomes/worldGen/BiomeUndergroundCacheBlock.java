@@ -1,5 +1,6 @@
 package exterminatorJeff.undergroundBiomes.worldGen;
 
+import exterminatorJeff.undergroundBiomes.api.BiomeGenUndergroundBase;
 import exterminatorJeff.undergroundBiomes.common.UBiomeCache;
 
 public class BiomeUndergroundCacheBlock {

@@ -41,7 +41,7 @@ public class BlockUBMetadataOre extends BlockUBOre {
     }
     @Override
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune){
-        logger.info("Getting drops "+oreMetadata);
+        //logger.info("Getting drops "+oreMetadata);
         return ore.getDrops(world, x, y, z, oreMetadata, fortune);
     }
 
@@ -77,7 +77,7 @@ public class BlockUBMetadataOre extends BlockUBOre {
 
     @Override
     public int getExpDrop(IBlockAccess world, int metadata, int fortune) {
-        return ore.getExpDrop(iBlockAccess(world), metadata, fortune);
+        return ore.getExpDrop(iBlockAccess(world), oreMetadata, fortune);
     }
 
     @Override
@@ -111,12 +111,12 @@ public class BlockUBMetadataOre extends BlockUBOre {
     
     @Override
     public int getHarvestLevel(int metadata) {
-        return ore.getHarvestLevel(metadata);
+        return ore.getHarvestLevel(oreMetadata);
     }
 
     @Override
     public String getHarvestTool(int metadata) {
-        return ore.getHarvestTool(metadata);
+        return ore.getHarvestTool(oreMetadata);
     }
 
     @Override

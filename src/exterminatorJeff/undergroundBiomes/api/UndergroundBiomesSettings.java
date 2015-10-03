@@ -102,11 +102,20 @@ public final class UndergroundBiomesSettings extends Settings {
     public final Mutable<Boolean>  inChunkGeneration = this.general().booleanSetting(
             "InChunkGeneration", false,"Change stones during chunk generation");
 
+    public final Mutable<Boolean> newGeneration = this.general().booleanSetting(
+            "newGeneration", false,"Run generation as late as possible (slower but more compatible). Needs inChunk on");
+
     public final Mutable<String> inChunkGenerationExclude = this.general().stringSetting(
             "inChunkDimensionExclusions", "-1,1", "Comma-separated list of dimension to only use old decoration-phase generation, used only if inclusion list is *");
 
     public final Mutable<String> inChunkGenerationInclude = this.general().stringSetting(
             "inChunkDimensionInclusions", "0", "Comma-separated list of dimension IDs to allow new chunk-phase decoration, put * to use exclusion list");
+
+    public final Mutable<Double> brickHardnessMultiplier = this.general().doubleSetting("brickHardnessMultiplier",
+            1.0D, "UB brick hardness is this multiple of UB stone");
+
+    public final Mutable<Double> cobbleHardnessMultiplier = this.general().doubleSetting("cobbleHardnessMultiplier",
+            1.3333333D, "UB cobble hardness is this multiple of UB stone");
 
     public final Mutable<Integer> ligniteCoalID = this.blockCategory.intSetting("Lignite Item ID:", 5500);
     public final Mutable<Integer> fossilPieceID = this.itemCategory.intSetting("fossilPiece", 5501);

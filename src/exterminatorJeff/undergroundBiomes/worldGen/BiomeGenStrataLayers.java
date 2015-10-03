@@ -1,5 +1,6 @@
 package exterminatorJeff.undergroundBiomes.worldGen;
 
+import exterminatorJeff.undergroundBiomes.api.StrataLayer;
 import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
 import exterminatorJeff.undergroundBiomes.api.UBIDs;
 import exterminatorJeff.undergroundBiomes.api.NamedBlock;
@@ -33,6 +34,10 @@ public class BiomeGenStrataLayers {
         } else {
             createLayers();
         }
+    }
+
+    public BiomeGenStrataLayers(StrataLayer [][] layers) {
+        this.layers  = layers;
     }
     
     public void createLayers(){

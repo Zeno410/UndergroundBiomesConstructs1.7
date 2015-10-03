@@ -1,5 +1,8 @@
 package exterminatorJeff.undergroundBiomes.worldGen;
 
+import exterminatorJeff.undergroundBiomes.api.UBStoneCodes;
+import exterminatorJeff.undergroundBiomes.api.BiomeGenUndergroundBase;
+import exterminatorJeff.undergroundBiomes.api.StrataLayer;
 import exterminatorJeff.undergroundBiomes.common.WorldGenManager;
 import exterminatorJeff.undergroundBiomes.api.UBStrataColumn;
 import exterminatorJeff.undergroundBiomes.api.UBStrataColumnProvider;

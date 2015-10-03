@@ -14,7 +14,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.IIcon;
-import clickme.nocubes.NoCubes;
 
 /*
  *
@@ -31,11 +30,7 @@ public class BlockOverlay extends Block{
         super(Material.rock);
         this.overlayFileName  = overlayName;
         this.textureName = overlayName;
-        try {
-            renderID = NoCubes.renderId;
-        } catch (java.lang.NoClassDefFoundError e) {
-            renderID = super.getRenderType();
-        }
+        renderID = super.getRenderType();
 
     }
     @SideOnly(Side.CLIENT)

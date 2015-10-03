@@ -1,6 +1,7 @@
 
 package exterminatorJeff.undergroundBiomes.worldGen;
 
+import exterminatorJeff.undergroundBiomes.api.UBStoneCodes;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import Zeno410Utils.BlockState;
@@ -18,7 +19,10 @@ import Zeno410Utils.KeyedRegistry;
 import Zeno410Utils.MinecraftName;
 import Zeno410Utils.Mutable;
 import Zeno410Utils.Zeno410Logger;
+import exterminatorJeff.undergroundBiomes.common.block.BlockUBHidden;
 import exterminatorJeff.undergroundBiomes.common.block.BlockUBMetadataOre;
+import exterminatorJeff.undergroundBiomes.common.block.BlockUBReplaceable;
+import exterminatorJeff.undergroundBiomes.common.item.ItemUBHiddenBlock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +44,7 @@ public final class OreUBifier {
     private boolean replacementActive;
     private UBVersionsDictionary blockReplacer = new UBVersionsDictionary();
     private ReplacedOres replacedOres = new ReplacedOres();
-    private HashMap<Block,Block> oreFor = new HashMap<Block,Block>();
+    private HashMap<Block,ItemStack> oreFor = new HashMap<Block,ItemStack>();
     private HashMap<Block,Block> overlayFor = new HashMap<Block,Block>();
     private HashMap<Block,Block> stoneFor = new HashMap<Block,Block>();
     private HashSet<Class> replacedBlockClasses = new HashSet<Class>();
@@ -60,6 +64,15 @@ public final class OreUBifier {
         replacementFlag.informOnChange(updateReplacement);
     }
 
+    public void setupUBHidden(Block oreBlock,FMLPreInitializationEvent event){
+        assert(event != null);
+        registerHiddenBlock(oreBlock,UndergroundBiomes.igneousStone,"igneous");
+        registerHiddenBlock(oreBlock,UndergroundBiomes.metamorphicStone,"metamorphic");
+        registerHiddenBlock(oreBlock,UndergroundBiomes.sedimentaryStone,"sedimentary");
+        replacedOres.setAll(oreBlock);
+        this.replacedBlockClasses.add(oreBlock.getClass());
+    }
+    
     public void setupUBOre(Block oreBlock, String overlayName, FMLPreInitializationEvent event){
         assert(event != null);
         registerBlock(oreBlock,UndergroundBiomes.igneousStone,"igneous",overlayName);
@@ -91,7 +104,7 @@ public final class OreUBifier {
         for (int i = 0; i < 16; i ++) {
             blockReplacer.item(oreBlock).ubversions[i].set(ubStone, ubOre);
         }
-        oreFor.put(ubOre, oreBlock);
+        oreFor.put(ubOre, new ItemStack(oreBlock,1,1));
         overlayFor.put(ubOre, overlay);
         stoneFor.put(ubOre, ubStone);
         int blockID = Block.getIdFromBlock(ubOre);
@@ -100,11 +113,28 @@ public final class OreUBifier {
         //BlockOverlay.logger.info("block "+blockID+" matched to "+matchedItem.toString()+" for "+matchedBlock.getUnlocalizedName());
     }
 
+    private void registerHiddenBlock(Block oreBlock, BlockMetadataBase ubStone, String rockName) {
+        BlockUBHidden ubOre = new BlockUBHidden(ubStone,oreBlock);
+        NamedBlock namer = new NamedBlock(rockName+"_"+oreBlock.getUnlocalizedName().substring(5));
+        BlockOverlay.logger.info("block "+oreBlock+ " no metadata ");
+        GameRegistry.registerBlock(ubOre, ItemUBHiddenBlock.class, namer.internal());
+        //BlockOverlay.logger.info(namer.internal());
+        // all the metadatas get replaced
+        for (int i = 0; i < 16; i ++) {
+            blockReplacer.item(oreBlock).ubversions[i].set(ubStone, ubOre);
+        }
+        oreFor.put(ubOre, new ItemStack(oreBlock,1,1));
+        stoneFor.put(ubOre, ubStone);
+        int blockID = Block.getIdFromBlock(ubOre);
+        Item matchedItem = Item.getItemById(blockID);
+    }
+
     private void registerBlockWithMetadata(Block oreBlock, BlockMetadataBase ubStone, String rockName, String overlayName, 
             int metadata, MinecraftName metadataBlockName) {
         //overlayName.replace("metallurgy:/", "metallurgy:");
         //overlayName = "Metallurgy:"+overlayName.substring("metallurgy:/".length());
         BlockOverlay overlay = new BlockOverlay(overlayName);
+        logger.info(metadataBlockName.localized() + " " + metadataBlockName.unlocalized());
 
         BlockState oreBlockState = new BlockState(oreBlock,metadata);
         BlockUBOre ubOre = new BlockUBMetadataOre(ubStone,oreBlockState,overlay,renderID,metadataBlockName);
@@ -118,7 +148,7 @@ public final class OreUBifier {
         GameRegistry.registerBlock(ubOre, ItemUBOreBlock.class, namer.internal());
         //BlockOverlay.logger.info(namer.internal());
         blockReplacer.item(oreBlock).ubversions[metadata].set(ubStone, ubOre);
-        oreFor.put(ubOre, oreBlock);
+        oreFor.put(ubOre, new ItemStack(oreBlock,1,metadata));
         overlayFor.put(ubOre, overlay);
         stoneFor.put(ubOre, ubStone);
         int blockID = Block.getIdFromBlock(ubOre);
@@ -133,7 +163,7 @@ public final class OreUBifier {
                 BlockOverlay.logger.info("blueschist instanceof BlockMetadataBase " +(testUBStone.block instanceof BlockMetadataBase));
                 MetadataUBVersions versions = blockReplacer.item(oreBlock);
                 for (int i = 0; i < 16;i++) {
-                    Block ore = versions.ubversions[i].ore((BlockMetadataBase)(testUBStone.block));
+                    Block ore = versions.ubversions[i].ore((BlockMetadataBase)(testUBStone.block)).block();
                     if (ore == null) {
                         BlockOverlay.logger.info("null in "+i);
                     } else{
@@ -163,17 +193,6 @@ public final class OreUBifier {
         renderID.set(renderer.getRenderId());
     }
 
-    public Block baseOre(Block ubVersion) {
-        Block result = oreFor.get(ubVersion);
-        if (result == null) {
-            if (UndergroundBiomes.crashOnProblems()) {
-                throw new RuntimeException("no ore for "+ubVersion.getUnlocalizedName());
-            }
-            return Blocks.coal_ore;
-        }
-        return result;
-    }
-
     public BlockMetadataBase baseStone(Block ubVersion) {
         Block result = stoneFor.get(ubVersion);
         if (result == null) {
@@ -190,18 +209,22 @@ public final class OreUBifier {
         Block result = overlayFor.get(ubVersion);
         if (result == null) {
             UndergroundBiomes.throwIfTesting("no overlay for "+ubVersion.getUnlocalizedName());
+            return UndergroundBiomes.igneousStone;
         }
         return result;
 
     }
 
     public void registerOres() {
-        String [] oreNames = OreDictionary.getOreNames();
         for (Block block: this.oreFor.keySet()){
-            Block ore = oreFor.get(block);
+            ItemStack ore = oreFor.get(block);
             try{
-                int oreID  = OreDictionary.getOreID(new ItemStack(ore));
-                OreDictionary.registerOre(oreID, block);
+                int oreID  = OreDictionary.getOreID(ore);
+                //OreDictionary.registerOre(oreID, block);
+                for (int metadata = 0; metadata<8; metadata++) {
+                    ItemStack metadataBlock = new ItemStack(block,1,metadata);
+                    OreDictionary.registerOre(oreID, metadataBlock);
+                }
             } catch (NullPointerException e) {
                 if (UndergroundBiomes.crashOnProblems()) throw e;
             }
@@ -212,23 +235,23 @@ public final class OreUBifier {
     }
 
     private class UBVersions {
-        private final HashMap<BlockMetadataBase,BlockUBOre> converter =
-                new HashMap<BlockMetadataBase,BlockUBOre>();
+        private final HashMap<BlockMetadataBase,BlockUBReplaceable> converter =
+                new HashMap<BlockMetadataBase,BlockUBReplaceable>();
         private final HashMap<BlockMetadataBase,ArrayList<BlockState>> convertedBlockStates =
                 new HashMap<BlockMetadataBase,ArrayList<BlockState>>();
 
-        public void set(BlockMetadataBase ubStone, BlockUBOre ubOre) {
+        public void set(BlockMetadataBase ubStone, BlockUBReplaceable ubOre) {
             converter.put(ubStone, ubOre);
             ArrayList<BlockState> blockStates = new ArrayList<BlockState>();
             for (int i = 0; i < BlockMetadataBase.metadatas; i++) {
-                blockStates.add(new BlockState(ubOre,i));
+                blockStates.add(new BlockState(ubOre.block(),i));
             }
             convertedBlockStates.put(ubStone, blockStates);
         }
 
         public boolean active() {return converter.size()>0;}
 
-        public BlockUBOre ore(BlockMetadataBase stone) {
+        public BlockUBReplaceable ore(BlockMetadataBase stone) {
             return converter.get(stone);
         }
 
@@ -262,12 +285,13 @@ public final class OreUBifier {
     public boolean replaces(Block possibleOre, int metadata) {
         if (replacementActive) {
             boolean result = replacedOres.has(possibleOre, metadata);
+            /* Code to test for missed ores
             if (result == false) {
                 if (this.replacedBlockClasses.contains(possibleOre.getClass())) {
                     BlockOverlay.logger.info(possibleOre.toString() + " " + metadata + " " +
                             possibleOre.getClass().toString());
                 }
-            }
+            }*/
             return result;
         }
         return false;
@@ -283,8 +307,8 @@ public final class OreUBifier {
                 baseStone = (BlockMetadataBase)defaultStone.block;
             } else {
                 // no UB stone available; stay with the default ore;
-                //return new BlockState(ore,metadata);
-                throw new RuntimeException();
+                return new BlockState(ore,metadata);
+                //throw new RuntimeException();
             }
         }
         return this.blockReplacer.item(ore).ubversions[metadata].convertedore(baseStone,stone.metadata);
