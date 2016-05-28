@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Logger;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,6 +44,11 @@ public class BlockUBMetadataOre extends BlockUBOre {
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune){
         //logger.info("Getting drops "+oreMetadata);
         return ore.getDrops(world, x, y, z, oreMetadata, fortune);
+    }
+
+    @Override
+    public void registerBlockIcons(IIconRegister iconRegister) {
+        super.registerBlockIcons(iconRegister);
     }
 
     private IBlockAccess iBlockAccess(IBlockAccess toWrap) {

@@ -1,49 +1,46 @@
+/**
+ *
+ * @author Zeno410
+ *
+ * Constructor for the button group
+ */
 package exterminatorJeff.undergroundBiomes.constructs.block;
-
 import exterminatorJeff.undergroundBiomes.api.UBIDs;
 import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
 import exterminatorJeff.undergroundBiomes.constructs.item.ItemUBButton;
 import exterminatorJeff.undergroundBiomes.constructs.util.UndergroundBiomesBlock;
+
+import cpw.mods.fml.common.registry.GameRegistry;
+
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-/**
- *
- * @author Zeno410
- */
-public class UBButtonGroup extends UBConstructGroup {
+public class UBTEButtonGroup extends UBConstructGroup {
 
-    public UBButtonGroup() {
-        super("Button");
+    public UBTEButtonGroup() {
+        super("button");
     }
 
     public static boolean suppress(UndergroundBiomesBlock block) {
         if (block.ubBlock == UndergroundBiomes.igneousStoneBrick) return true;
         return  (block.ubBlock  == UndergroundBiomes.metamorphicStoneBrick) ;
     }
-
+    
     IRecipe recipe(ProductItemDefiner product,StoneItemDefiner stone) {
         // suppress brick buttons
         if (suppress(stone.ubBlock())) return null;
         return new ShapelessOreRecipe(product.stackOf(1), stone.one());
     }
 
-    IRecipe rescueRecipe(ProductItemDefiner product, StoneItemDefiner stone) {
+    IRecipe rescueRecipe(ProductItemDefiner product,StoneItemDefiner stone) {
+        // suppress brick buttons
+        if (suppress(stone.ubBlock())) return null;
         if (stone.ubBlock().ubBlock == UndergroundBiomes.igneousCobblestone) return null;
         if (stone.ubBlock().ubBlock == UndergroundBiomes.metamorphicCobblestone) return null;
-        if (stone.ubBlock().ubBlock == UndergroundBiomes.igneousStoneBrick){
-            return new ShapelessOreRecipe(new ItemStack(Blocks.stone_button,1), product.stackOf(1));
-        }
-        if (stone.ubBlock().ubBlock == UndergroundBiomes.metamorphicStoneBrick){
-            return new ShapelessOreRecipe(new ItemStack(Blocks.stone_button,1), product.stackOf(1));
-        }
-        if (stone.ubBlock().ubBlock == UndergroundBiomes.sedimentaryStone){
-            return new ShapelessOreRecipe(new ItemStack(Blocks.stone_button,1), product.stackOf(1));
-        }
         return new ShapelessOreRecipe(new ItemStack(Blocks.stone_button,1), product.stackOf(1));
     }
 
@@ -55,4 +52,6 @@ public class UBButtonGroup extends UBConstructGroup {
         }
         return constructBlock;
     }
+
 }
+

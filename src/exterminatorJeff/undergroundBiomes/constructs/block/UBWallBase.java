@@ -31,6 +31,7 @@ import net.minecraft.entity.Entity;
 
 import Zeno410Utils.Zeno410Logger;
 import java.util.logging.Logger;
+import net.minecraft.client.renderer.texture.IIconRegister;
 
 public class UBWallBase extends BlockWall  implements ITileEntityProvider{
 
@@ -42,14 +43,20 @@ public class UBWallBase extends BlockWall  implements ITileEntityProvider{
         super(_baseBlock);
         name = namer;
         this.isBlockContainer = false;
-        this.setCreativeTab(UndergroundBiomes.tabModBlocks);
+        //this.setCreativeTab(UndergroundBiomes.tabModBlocks);
+        this.setCreativeTab(null);
         this.setBlockName("wall");
     }
 
     public void register() {
         name.register(storedID, this);
     }
-
+    
+    @Override
+    public void registerBlockIcons(IIconRegister arg0) {
+        //super.registerBlockIcons(arg0);
+    }
+    
     public void reRegister() {
         name.reRegister(storedID, this);
     }

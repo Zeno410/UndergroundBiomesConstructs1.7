@@ -81,7 +81,7 @@ import net.minecraftforge.event.terraingen.OreGenEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import static java.lang.annotation.ElementType.*;
 
-@Mod(modid = "UndergroundBiomes", name = "Underground Biomes", version = "0.7")
+@Mod(modid = "UndergroundBiomes", name = "Underground Biomes", version = "0.8.beta57")
 
 public class UndergroundBiomes implements IWorldGenerator{
     
@@ -97,7 +97,7 @@ public class UndergroundBiomes implements IWorldGenerator{
 
     private DimensionManager dimensionManager;
 
-    private WatchList defaultIDSetter;
+    //private WatchList defaultIDSetter;
     private boolean runningConfigIDs = false;
     
     public static String textures = "/exterminatorJeff/undergroundBiomes/textures.png";
@@ -192,7 +192,8 @@ public class UndergroundBiomes implements IWorldGenerator{
     public final static int generateHeight() {return instance().settings.generateHeight.value();}
 
     public UndergroundBiomesConstructs constructs;
-    private UndergroundBiomesSettings settings = new UndergroundBiomesSettings();
+    private UndergroundBiomesSettings settings = new UndergroundBiomesSettings(
+            BlockIgneousStone.blockName,BlockMetamorphicStone.blockName,BlockSedimentaryStone.blockName);
     public UndergroundBiomesSettings settings() {return settings;}
     private ConfigManager<UndergroundBiomesSettings> configManager;
 
@@ -364,7 +365,7 @@ public class UndergroundBiomes implements IWorldGenerator{
 
         oreRequester.fulfillRequests(event);
 
-        defaultIDSetter = this.defaultIDs();
+        //defaultIDSetter = this.defaultIDs();
         FMLCommonHandler.instance().bus().register(this);
         GameRegistry.registerWorldGenerator(this,10000);
         //FMLCommonHandler.instance().bus().register(new EventWatcher());
@@ -639,29 +640,29 @@ public class UndergroundBiomes implements IWorldGenerator{
                 // rescue recipes
         //metamorphic stone
         for (int metadata = 0; metadata< 8; metadata++) {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_button, 1,0), new ItemStack(constructs.stoneButton().construct, 1,metadata)));
+            //GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_button, 1,0), new ItemStack(constructs.stoneButton().construct, 1,metadata)));
         }
         //metamorphic cobblestone
         for (int metadata = 8; metadata< 8+8; metadata++) {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_stairs, 1,0), new ItemStack(constructs.stoneStair().construct, 1,metadata)));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.cobblestone_wall, 1,0), new ItemStack(constructs.stoneWall().construct, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_stairs, 1,0), constructs.stoneStair().productItemDefiner(metadata).one()));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.cobblestone_wall, 1,0), constructs.stoneWall().productItemDefiner(metadata).one()));
         }
         //metamorphic brick
         for (int metadata = 16; metadata< 16+8; metadata++) {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_brick_stairs, 1,0), new ItemStack(constructs.stoneStair().construct, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_brick_stairs, 1,0), constructs.stoneStair().productItemDefiner(metadata).one()));
         }
         //igneous stone
         for (int metadata = 24; metadata< 24+8; metadata++) {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_button, 1,0), new ItemStack(constructs.stoneButton().construct, 1,metadata)));
+            //GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_button, 1,0), new ItemStack(constructs.stoneButton().construct, 1,metadata)));
         }
         //igneous cobblestone
         for (int metadata = 32; metadata< 32+8; metadata++) {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_stairs, 1,0), new ItemStack(constructs.stoneStair().construct, 1,metadata)));
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.cobblestone_wall, 1,0), new ItemStack(constructs.stoneWall().construct, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_stairs, 1,0), constructs.stoneStair().productItemDefiner(metadata).one()));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.cobblestone_wall, 1,0), constructs.stoneWall().productItemDefiner(metadata).one()));
         }
         //igneous brick
         for (int metadata = 40; metadata< 40+8; metadata++) {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_brick_stairs, 1,0), new ItemStack(constructs.stoneStair().construct, 1,metadata)));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.stone_brick_stairs, 1,0), constructs.stoneStair().productItemDefiner(metadata).one()));
         }
         //sedimentary stone
         for (int metadata = 48; metadata< 48+8; metadata++) {
@@ -971,9 +972,9 @@ public class UndergroundBiomes implements IWorldGenerator{
         forcing.addChangeWithItem(sedimentaryStoneSlabHalfID(),sedimentaryStoneSlab.half);
         forcing.addChangeWithItem(sedimentaryStoneSlabFullID(),sedimentaryStoneSlab.full);
 
-        forcing.addChange(constructs.stoneButtonID(),constructs.stoneButton().construct);
-        forcing.addChange(constructs.stoneStairID(), constructs.stoneStair().construct);
-        forcing.addChange(constructs.stoneWallID(), constructs.stoneWall().construct);
+        //forcing.addChange(constructs.stoneButtonID(),constructs.stoneButton().construct);
+        //forcing.addChange(constructs.stoneStairID(), constructs.stoneStair().construct);
+        //forcing.addChange(constructs.stoneWallID(), constructs.stoneWall().construct);
         return forcing;
     }
 

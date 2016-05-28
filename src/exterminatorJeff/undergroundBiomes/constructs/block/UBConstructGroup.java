@@ -39,9 +39,9 @@ public abstract class UBConstructGroup {
         public ArrayList<IRecipe> recipes() {
             ArrayList<IRecipe> result = new ArrayList<IRecipe>();
             for (int ubIndex = 0; ubIndex <UndergroundBiomesBlockList.detailedBlockCount;ubIndex++) {
-                IRecipe added = recipe(new ProductItemDefiner(ubIndex),new StoneItemDefiner(ubIndex));
+                IRecipe added = recipe(productItemDefiner(ubIndex),new StoneItemDefiner(ubIndex));
                 if (added != null) result.add(added);
-                added = rescueRecipe(new ProductItemDefiner(ubIndex),new StoneItemDefiner(ubIndex));
+                added = rescueRecipe(productItemDefiner(ubIndex),new StoneItemDefiner(ubIndex));
                 if (added != null) result.add(added);
             }
             return result;
@@ -52,8 +52,6 @@ public abstract class UBConstructGroup {
         abstract IRecipe rescueRecipe(ProductItemDefiner product, StoneItemDefiner stone);
 
         abstract Block definedBlock(); // this should return the construct block for the group
-
-        abstract Class<? extends ItemBlock> itemClass(); // the class to handle items
 
         public BlockMetadataBase baseBlock() {
             return baseBlock;
@@ -79,18 +77,22 @@ public abstract class UBConstructGroup {
             public final ItemStack one() {return stackOf(1);}
         }
 
-        class ProductItemDefiner {
+        public ProductItemDefiner productItemDefiner(int index) {
+            return new ProductItemDefiner(index);
+        }
+
+        public class ProductItemDefiner {
             // this inner class wraps the stoneIndex for "standard" UBConstruct item group
             // the assumption is that a damage index of x indicates that stone
             final int stoneIndex;
 
             ProductItemDefiner(int _stoneIndex) {stoneIndex = _stoneIndex;}
 
-            public final ItemStack stackOf(int items) {
+            public ItemStack stackOf(int items) {
                 return new ItemStack(construct,items,stoneIndex);
             }
 
-            public final ItemStack one() {return stackOf(1);}
+            public ItemStack one() {return stackOf(1);}
         }
 
 }

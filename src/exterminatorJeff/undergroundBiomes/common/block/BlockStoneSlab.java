@@ -37,6 +37,11 @@ public class BlockStoneSlab extends BlockSlab {
     }
 
     @Override
+    public void registerBlockIcons(IIconRegister p_149651_1_) {
+        //super.registerBlockIcons(p_149651_1_);
+    }
+
+    @Override
     public float getBlockHardness(World par1World, int x, int y, int z) {
         float result =  referenceBlock.getBlockHardness(par1World, x, y, z);
         if (this.isDoubleSlab()) return result;

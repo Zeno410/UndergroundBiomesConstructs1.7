@@ -307,7 +307,8 @@ public class WorldGenManager {
             if ((currentProvider instanceof ChunkProviderGenerate)
                     ||(currentProvider.getClass().getName().contains("ChunkProviderBOP")
                     ||(currentProvider.getClass().getName().contains("ChunkProviderTwilightForest")
-                    ||(currentProvider.getClass().getName().contains("BWG4ChunkProvider"))))){
+                    ||(currentProvider.getClass().getName().contains("BWG4ChunkProvider")
+                    ||(currentProvider.getClass().getName().contains("ChunkProviderRTG")))))){
                 providerFromChunkServer.setField(currentServer,
                     new UBChunkProvider(currentProvider,this.villageStoneSource,this.dimension));
             }

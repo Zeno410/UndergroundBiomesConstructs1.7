@@ -31,6 +31,7 @@ import net.minecraft.world.World;
 import net.minecraft.entity.Entity;
 
 import exterminatorJeff.undergroundBiomes.common.block.BlockMetadataBase;
+import net.minecraft.client.renderer.texture.IIconRegister;
 
 public class UBStairsBase extends BlockStairs implements ITileEntityProvider{
 
@@ -42,11 +43,14 @@ public class UBStairsBase extends BlockStairs implements ITileEntityProvider{
         name = namer;
         this.setLightOpacity(4);
         this.isBlockContainer = false;
-        this.setCreativeTab(UndergroundBiomes.tabModBlocks);
+        this.setCreativeTab(null);
         this.setBlockName("stairs");
     }
 
-
+    @Override
+    public void registerBlockIcons(IIconRegister arg0) {
+        //super.registerBlockIcons(arg0);
+    }
 
     @Override
     public boolean hasTileEntity(int metadata) {return true;}

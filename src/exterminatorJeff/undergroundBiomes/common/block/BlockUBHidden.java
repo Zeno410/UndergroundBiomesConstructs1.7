@@ -57,6 +57,10 @@ public class BlockUBHidden extends Block implements BlockUBReplaceable {
     
     public Block block() {return this;}
 
+    @Override
+    public void registerBlockIcons(IIconRegister p_149651_1_) {
+        //super.registerBlockIcons(p_149651_1_);
+    }
     @SideOnly(Side.CLIENT)
     @Override
     public IIcon getIcon(int side, int metadata){

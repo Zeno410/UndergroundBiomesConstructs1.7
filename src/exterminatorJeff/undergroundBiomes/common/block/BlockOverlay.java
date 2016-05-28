@@ -28,6 +28,7 @@ public class BlockOverlay extends Block{
 
     public BlockOverlay(String overlayName) {
         super(Material.rock);
+        if (overlayName.contains("null")) throw new RuntimeException();
         this.overlayFileName  = overlayName;
         this.textureName = overlayName;
         renderID = super.getRenderType();

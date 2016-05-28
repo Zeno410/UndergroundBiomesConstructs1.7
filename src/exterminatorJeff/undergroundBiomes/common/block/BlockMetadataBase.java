@@ -89,6 +89,8 @@ public abstract class BlockMetadataBase extends BlockStone {
     
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int metadata){
+        IIcon result = textures[metadata & 7];
+        if (result == null) throw new RuntimeException(""+metadata);
         return textures[metadata & 7];
     }
 
@@ -97,8 +99,7 @@ public abstract class BlockMetadataBase extends BlockStone {
         return this.textureName == null ? "MISSING_ICON_BLOCK_" + getIdFromBlock(this) + "_" + this.getUnlocalizedName() : this.textureName;
     }
 
-    public void getSubBlocks(Item id, CreativeTabs tabs, List list)
-    {
+    public void getSubBlocks(Item id, CreativeTabs tabs, List list){
         for (int i = 0; i < 8; i++){
             list.add(new ItemStack(id, 1, i));
         } 
@@ -115,7 +116,7 @@ public abstract class BlockMetadataBase extends BlockStone {
         if (target == null) return this.replaceableByOre;
         // this obnoxious call is needed because something is redoing ore placement without calling my routines
         if (!UndergroundBiomes.instance().settings().newGeneration.value()) {
-           //BiomeUndergroundDecorator.needsRedo(x, z, world);
+           BiomeUndergroundDecorator.needsRedo(x, z, world);
         }
         return this.replaceableByOre&&target.getUnlocalizedName().equals(Blocks.stone.getUnlocalizedName());
     }

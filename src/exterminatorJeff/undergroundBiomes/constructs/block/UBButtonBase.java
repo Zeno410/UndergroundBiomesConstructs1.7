@@ -24,6 +24,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.entity.Entity;
@@ -41,10 +42,13 @@ public class UBButtonBase extends BlockButton implements ITileEntityProvider{
         super(false);
         name = namer;
         this.isBlockContainer = false;
-        this.setCreativeTab(UndergroundBiomes.tabModBlocks);
+        this.setCreativeTab(null);
         this.setBlockName("button");
     }
-
+    @Override
+    public void registerBlockIcons(IIconRegister arg0) {
+        //super.registerBlockIcons(arg0);
+    }
     @Override
     public boolean hasTileEntity(int metadata) {return true;}
 
@@ -65,7 +69,7 @@ public class UBButtonBase extends BlockButton implements ITileEntityProvider{
         if (!(UndergroundBiomes.buttonsOn())) return;
         for (int i = 0; i < UndergroundBiomesBlockList.detailedBlockCount; i++){
             UndergroundBiomesBlock source = UndergroundBiomesBlockList.indexed(i);
-            if (UBButtonGroup.suppress(source)) continue;// no brick buttons
+            if (UBTEButtonGroup.suppress(source)) continue;// no brick buttons
             list.add(new ItemStack(item, 1, i));
         }
     }

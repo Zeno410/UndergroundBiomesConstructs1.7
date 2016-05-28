@@ -32,6 +32,7 @@ public class UBIDs {
     public final static NamedBlock UBButtonName = new NamedBlock("button");
     public final static NamedBlock UBStairsName = new NamedBlock("stairs");
     public final static NamedBlock UBWallsName = new NamedBlock("wall");
+    public final static NamedBlock UBWallsBlockName = new NamedBlock("wallBlock");
     public final static NamedItem UBButtonItemName = new NamedItem(UBButtonName);
     public final static NamedItem UBStairsItemName = new NamedItem(UBStairsName);
     public final static NamedItem UBWallsItemName = new NamedItem(UBWallsName);

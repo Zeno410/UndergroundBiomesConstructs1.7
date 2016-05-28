@@ -5,6 +5,7 @@ import java.util.Random;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import exterminatorJeff.undergroundBiomes.api.UBIDs;
 import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
@@ -47,5 +48,11 @@ public class BlockIgneousCobblestone extends BlockIgneousStone
     public Item getItemDropped(int metadata, Random random, int fortune) {
         return Item.getItemById(UBIDs.igneousCobblestoneName.ID());
     }
+
+    @Override
+    public IIcon getIcon(int side, int metadata) {
+        return super.getIcon(side, metadata);
+    }
+
 
 }

@@ -284,6 +284,9 @@ abstract public class Settings implements Streamable {
         public String description() {
            return description;
         }
+        public void setDescription(String newDescription) {
+            description = newDescription;
+        }
         public Mutable<Boolean> booleanSetting(String key,String comment, boolean defaultValue){
             return new BooleanSetting(this,key,comment,defaultValue);
         }

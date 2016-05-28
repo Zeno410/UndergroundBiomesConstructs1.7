@@ -6,7 +6,9 @@ import exterminatorJeff.undergroundBiomes.api.UndergroundBiomeSet;
 import exterminatorJeff.undergroundBiomes.api.NamedBlock;
 import exterminatorJeff.undergroundBiomes.api.NamedVanillaBlock;
 import exterminatorJeff.undergroundBiomes.api.UBIDs;
+import exterminatorJeff.undergroundBiomes.api.UndergroundBiomesSettings;
 import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
+import java.util.ArrayList;
 
 /**
  *
@@ -14,8 +16,10 @@ import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
  */
 public class StandardUndergroundBiomeSet extends UndergroundBiomeSet {
 
-    public StandardUndergroundBiomeSet() {
-        super(new BiomeGenStrataLayers().layers);
+    private final UndergroundBiomesSettings settings;
+    public StandardUndergroundBiomeSet(UndergroundBiomesSettings settings) {
+        super(new BiomeGenStrataLayers(settings).layers);
+        this.settings = settings;
     }
 
     NamedBlock igneousID = UBIDs.igneousStoneName;
@@ -132,7 +136,16 @@ public class StandardUndergroundBiomeSet extends UndergroundBiomeSet {
                     vanillaStone3, vanillaStone4
                     };
         }
-        return allowedBiomes;
+        return generatable(allowedBiomes);
     }
-
+    public BiomeGenUndergroundBase [] generatable(BiomeGenUndergroundBase[] possible) {
+        ArrayList<BiomeGenUndergroundBase> accepted = new ArrayList<BiomeGenUndergroundBase>();
+        for (int i = 0; i < possible.length; i++) {
+            NamedBlock block = possible[i].fillerBlockCodes.name;
+            int metadata = possible[i].fillerBlockCodes.metadata;
+            if (settings.generationAllowed(block, metadata)) accepted.add(possible[i]);
+        }
+        BiomeGenUndergroundBase[] result = new BiomeGenUndergroundBase[accepted.size()];
+        return accepted.toArray(result);
+    }
 }

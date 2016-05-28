@@ -8,12 +8,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
-import java.util.Random;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
-import net.minecraftforge.event.world.WorldEvent;
 
 
 import net.minecraftforge.event.terraingen.BiomeEvent.GetVillageBlockID;
@@ -84,7 +80,7 @@ public class DimensionManager implements UBSetProviderRegistry{
         UndergroundBiomeSet result = dimensionalBiomeSets.get(dimension);
         // set result to default if necessary
         if (result == null) {
-            if (cachedBiomeSet == null) cachedBiomeSet = new StandardUndergroundBiomeSet();
+            if (cachedBiomeSet == null) cachedBiomeSet = new StandardUndergroundBiomeSet(settings);
             result = cachedBiomeSet;
         }
         // call the set providers to allow changes
@@ -97,6 +93,7 @@ public class DimensionManager implements UBSetProviderRegistry{
     }
 
     private final OreUBifier oreUBifier;
+    private final UndergroundBiomesSettings settings;
 
     private WorldGenManager villageWorldGenManager;  // has to be cached because not availabe for block call
 
@@ -121,6 +118,7 @@ public class DimensionManager implements UBSetProviderRegistry{
     }
 
     public DimensionManager(UndergroundBiomesSettings settings,OreUBifier oreUBifier) {
+        this.settings = settings;
         dimensionSpecificSeeds = settings.dimensionSpecificSeeds.value();
 
         inChunkGeneration = settings.inChunkGeneration.value();

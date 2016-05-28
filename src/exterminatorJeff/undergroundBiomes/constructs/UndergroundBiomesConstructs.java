@@ -10,9 +10,9 @@ import exterminatorJeff.undergroundBiomes.common.block.BlockMetadataBase;
 import exterminatorJeff.undergroundBiomes.common.block.BlockSedimentaryStone;
 
 import exterminatorJeff.undergroundBiomes.constructs.item.ItemUndergroundBiomesConstruct;
-import exterminatorJeff.undergroundBiomes.constructs.block.UBButtonGroup;
-import exterminatorJeff.undergroundBiomes.constructs.block.UBStairsGroup;
-import exterminatorJeff.undergroundBiomes.constructs.block.UBWallGroup;
+import exterminatorJeff.undergroundBiomes.constructs.block.UBTEButtonGroup;
+import exterminatorJeff.undergroundBiomes.constructs.block.UBTEStairsGroup;
+import exterminatorJeff.undergroundBiomes.constructs.block.UBTEWallGroup;
 
 import exterminatorJeff.undergroundBiomes.constructs.util.UndergroundBiomesBlockList;
 import exterminatorJeff.undergroundBiomes.constructs.entity.UndergroundBiomesTileEntity;
@@ -34,6 +34,15 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import exterminatorJeff.undergroundBiomes.api.UndergroundBiomesSettings;
 import exterminatorJeff.undergroundBiomes.common.item.SwitchableRecipeGroup;
 import Zeno410Utils.Zeno410Logger;
+import exterminatorJeff.undergroundBiomes.api.NamedBlock;
+import exterminatorJeff.undergroundBiomes.constructs.block.UBButtonBlockGroup;
+import exterminatorJeff.undergroundBiomes.constructs.block.UBStairsBlockGroup;
+import exterminatorJeff.undergroundBiomes.constructs.block.UBWall;
+import exterminatorJeff.undergroundBiomes.constructs.block.UBWallBlockGroup;
+import exterminatorJeff.undergroundBiomes.constructs.item.ItemUBWall;
+import exterminatorJeff.undergroundBiomes.constructs.item.ItemUBWallBlock;
+import java.util.ArrayList;
+import net.minecraft.item.Item;
 
 //@Mod(modid = "UndergroundBiomesConstructs", name = "Underground Biomes Constructs", version = "0.0.4")
 //@NetworkMod(clientSideRequired = true, serverSideRequired = true)
@@ -44,17 +53,21 @@ public class UndergroundBiomesConstructs {
         return UndergroundBiomes.instance().settings();
     }
 
-    private UBStairsGroup stoneStair;
+    private UBStairsBlockGroup stoneStair;
     public int stoneStairID() {return settings().stoneStairID.value();}
-    public UBStairsGroup stoneStair() {return stoneStair;}
+    public UBStairsBlockGroup stoneStair() {return stoneStair;}
 
-    private UBWallGroup stoneWall;
+    private UBTEWallGroup stoneWall;
     public int stoneWallID() {return settings().stoneWallID.value();}
-    public UBWallGroup stoneWall() {return stoneWall;}
+    public UBTEWallGroup stoneWall() {return stoneWall;}
 
-    private UBButtonGroup stoneButton;
+    private UBWallBlockGroup blockWall;
+
+    private UBTEButtonGroup oldButton;
+    private UBButtonBlockGroup stoneButton;
     public int stoneButtonID() {return settings().stoneButtonID.value();}
-    public UBButtonGroup stoneButton() {return stoneButton;}
+
+    public UBButtonBlockGroup stoneButton() {return stoneButton;}
 
     private BlockMetadataBase iconTrap;
 
@@ -83,22 +96,47 @@ public class UndergroundBiomesConstructs {
     }
 
     public void preInitStairs() {
-        stoneStair = new UBStairsGroup();
+        UBTEStairsGroup oldStairs = new UBTEStairsGroup();
+        oldStairs.baseBlock = ubBlockList.sedimentaryStone;
+        oldStairs.define(stoneStairID());
+        stoneStair = new UBStairsBlockGroup();
         stoneStair.baseBlock = iconTrap;
         stoneStair.define(stoneStairID());
     }
 
+
+
     public void preInitWalls() {
-        stoneWall = new UBWallGroup();
+        stoneWall = new UBTEWallGroup();
         stoneWall.baseBlock = ubBlockList.sedimentaryStone;
         stoneWall.define(stoneWallID());
+        blockWall= new UBWallBlockGroup();
+        blockWall.define();
     }
 
     public void preInitButtons() {
-        stoneButton = new UBButtonGroup();
-        stoneButton.baseBlock = ubBlockList.sedimentaryStone;
-        stoneButton.define(stoneButtonID());
+        oldButton = new UBTEButtonGroup();
+        oldButton.baseBlock = ubBlockList.sedimentaryStone;
+        oldButton.define(stoneButtonID());
+        stoneButton = new UBButtonBlockGroup();
+        stoneButton.baseBlock = iconTrap;
+        stoneButton.define(stoneStairID());
     }
+    
+    public ArrayList<BlockMetadataBase> baseBlocks() {
+        ArrayList<BlockMetadataBase> result = new ArrayList<BlockMetadataBase>();
+        result.add(UndergroundBiomes.igneousStone);
+        System.out.println(UndergroundBiomes.igneousStone.getUnlocalizedName());
+        result.add(UndergroundBiomes.igneousCobblestone);
+        result.add(UndergroundBiomes.igneousStoneBrick);
+        result.add(UndergroundBiomes.metamorphicStone);
+        result.add(UndergroundBiomes.metamorphicCobblestone);
+        result.add(UndergroundBiomes.metamorphicStoneBrick);
+        result.add(UndergroundBiomes.sedimentaryStone);
+        return result;
+    }
+
+
 
     public void load(FMLInitializationEvent event) {
         /*if (UndergroundBiomes.buttonsOn())*/ loadButtons();
@@ -107,16 +145,13 @@ public class UndergroundBiomesConstructs {
     }
 
     private void loadStairs(){
-        //stoneStair.addRecipes();
         stairRecipes = new SwitchableRecipeGroup(stoneStair.recipes(),settings().stairsOn);
     }
     private void loadWalls() {
-        //stoneWall.addRecipes();
-        wallRecipes = new SwitchableRecipeGroup(stoneWall.recipes(),settings().wallsOn);
+        wallRecipes = new SwitchableRecipeGroup(blockWall.recipes(),settings().wallsOn);
     }
 
     private void loadButtons() {
-        //stoneButton.addRecipes();
         buttonRecipes = new SwitchableRecipeGroup(stoneButton.recipes(),settings().buttonsOn);
     }
 

@@ -1,7 +1,3 @@
-/**
- *
- * @author Zeno410
- */
 
 package exterminatorJeff.undergroundBiomes.constructs.block;
 
@@ -13,10 +9,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import exterminatorJeff.undergroundBiomes.common.UndergroundBiomes;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -27,7 +21,6 @@ public class UBWallGroup  extends UBConstructGroup {
     public UBWallGroup() {
         super("wall");
     }
-
 
     void addRecipe(ProductItemDefiner product, StoneItemDefiner stone) {
         IRecipe wallRecipe = wallRecipe(product,stone);
@@ -59,11 +52,8 @@ public class UBWallGroup  extends UBConstructGroup {
         }
         return null;
     }
-    private ShapedOreRecipe wallRecipe(ProductItemDefiner product, StoneItemDefiner stone) {
+    ShapedOreRecipe wallRecipe(ProductItemDefiner product, StoneItemDefiner stone) {
         return new ShapedOreRecipe(product.stackOf(6), "   ", "XXX", "XXX", 'X', stone.one());
-    }
-    Class<? extends ItemBlock> itemClass() {
-        return ItemUBWall.class;
     }
 
     private static UBWallBase constructBlock;
@@ -75,29 +65,4 @@ public class UBWallGroup  extends UBConstructGroup {
         return constructBlock;
     }
 
-    class WallRecipe extends ShapedOreRecipe {
-        public WallRecipe(ProductItemDefiner product, StoneItemDefiner stone) {
-            super (product.stackOf(6), "   ", "XXX", "XXX", 'X', stone.one());
-        }
-
-        public ItemStack getCraftingResult(InventoryCrafting var1) {
-            ItemStack result =  super.getCraftingResult(var1);
-            int registeredID = Item.getIdFromItem(result.getItem());
-            //ItemUBWall.logger.info("crafting "+registeredID+" " +result.getItem().toString());
-            if (registeredID == -1) {
-                ItemUBWall wallItem = (ItemUBWall)(result.getItem());
-                registeredID = Item.getIdFromItem(result.getItem());
-                throw new RuntimeException();
-            }
-            //ItemUBWall.logger.info("crafting "+registeredID+" " +result.getItem().toString());
-            return result;
-        }
-
-        public ItemStack getRecipeOutput() {
-            ItemStack result = super.getRecipeOutput();
-            //ItemUBWall.logger.info("output "+Item.getIdFromItem(result.getItem())+" " +result.getItem().toString());
-            return result;
-        }
-        
-    }
 }
