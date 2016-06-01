@@ -16,7 +16,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3Pool;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -206,10 +205,6 @@ public class BlockUBMetadataOre extends BlockUBOre {
 
         public boolean extendedLevelsInChunkCache() {
             return wrapped.extendedLevelsInChunkCache();
-        }
-
-        public Vec3Pool getWorldVec3Pool() {
-            return wrapped.getWorldVec3Pool();
         }
 
         public int isBlockProvidingPowerTo(int arg0, int arg1, int arg2, int arg3) {

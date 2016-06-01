@@ -55,7 +55,7 @@ public class BlockOverlay extends Block{
     public static void showTextureNames(TextureMap textureMap) {
         //if (shown) return;
         shown = true;
-        Accessor<TextureMap,Map> accessor = new Accessor<TextureMap,Map>("field_94252_e");
+        Accessor<TextureMap,Map> accessor = new Accessor<TextureMap,Map>(TextureMap.class);
         Map sprites = accessor.get(textureMap);
         Set names = sprites.keySet();
         for (Object name: names) {

@@ -25,10 +25,14 @@ public class ShamWorld extends World {
         super(null, name, null, settings, null);
     }
 
-
     @Override
     public int getBlockMetadata(int par1, int par2, int par3) {
         return shamMetadata;
+    }
+
+    @Override
+    protected int func_152379_p() {
+        return 256;
     }
 
     @Override

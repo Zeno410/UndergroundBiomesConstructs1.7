@@ -84,7 +84,7 @@ public class RenderUBOre implements ISimpleBlockRenderingHandler {
     }
 
     private static Accessor<RenderingRegistry,Map> blockRenderers =
-            new Accessor<RenderingRegistry,Map>("blockRenderers");
+            new Accessor<RenderingRegistry,Map>(RenderingRegistry.class);
 
     public static Object rendered(Integer ID) {
         return blockRenderers.get(RenderingRegistry.instance()).get(ID);

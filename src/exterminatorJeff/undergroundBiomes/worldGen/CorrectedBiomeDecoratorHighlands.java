@@ -59,7 +59,8 @@ public class CorrectedBiomeDecoratorHighlands extends BiomeDecoratorHighlands{
         mcthis = this;
     }
 
-    @Override
+    // Why the two different functions that do the same thing? The former one wouldn't be called anyway...
+    /* @Override
     public void func_150512_a(World world, Random random, BiomeGenBase biome, int x, int z) {
         World previous = ((BiomeDecorator)this).currentWorld;
         Random randomizer = ((BiomeDecorator)this).randomGenerator;
@@ -69,7 +70,7 @@ public class CorrectedBiomeDecoratorHighlands extends BiomeDecoratorHighlands{
         if (random == null) throw new RuntimeException();
         if (biome == null) throw new RuntimeException();
         try {
-             super.func_150512_a(targetWorld, random, biome, x, z);
+             super.decorateChunk(targetWorld, random, biome, x, z);
         } catch (RuntimeException e) {
             //((BiomeDecorator)this).currentWorld = targetWorld;
               int j;
@@ -95,7 +96,7 @@ public class CorrectedBiomeDecoratorHighlands extends BiomeDecoratorHighlands{
         }
         ((BiomeDecorator)this).currentWorld  = previous;
         ((BiomeDecorator)this).randomGenerator = randomizer;
-    }
+    } */
     
     @Override
     public void decorateChunk(World world, Random p_150512_2_, BiomeGenBase p_150512_3_, int p_150512_4_, int p_150512_5_) {

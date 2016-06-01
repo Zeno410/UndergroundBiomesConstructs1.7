@@ -55,7 +55,7 @@ public class WorldGenManager {
     private AccessChunkProviderServer accessChunkProviderServer = new AccessChunkProviderServer();
 
     private Accessor<ChunkProviderServer,IChunkProvider> providerFromChunkServer =
-            new Accessor<ChunkProviderServer,IChunkProvider>("field_73246_d");
+            new Accessor<ChunkProviderServer,IChunkProvider>(IChunkProvider.class);
 
     private long seed;
 
@@ -332,7 +332,7 @@ public class WorldGenManager {
         private void setIChunkProviderField() throws IllegalAccessException{
             Field [] fields = World.class.getDeclaredFields();
             for (int i = 0; i < fields.length;i ++) {
-                if (fields[i].getName().contains("field_73020_y")) {
+                if (IChunkProvider.class.isAssignableFrom(fields[i].getType())) {
                     iChunkProviderField = fields[i];
                     iChunkProviderField.setAccessible(true);
                     return;
@@ -381,7 +381,7 @@ public class WorldGenManager {
         private void setIChunkProviderField() throws IllegalAccessException{
             Field [] fields = WorldServer.class.getDeclaredFields();
             for (int i = 0; i < fields.length;i ++) {
-                if (fields[i].getName().contains("field_73059_b")) {
+                if (fields[i].getType() == ChunkProviderServer.class) {
                     iChunkProviderServerField = fields[i];
                     iChunkProviderServerField.setAccessible(true);
                 }
@@ -421,7 +421,7 @@ public class WorldGenManager {
             //logger.info( "fieldcount "+fields.length);
             for (int i = 0; i < fields.length;i ++) {
                 //logger.info( fields[i].getName());
-                if (fields[i].getName().contains("field_75909_a")) {
+                if (GenLayer.class.isAssignableFrom(fields[i].getClass())) {
                     parentField.setAccessible(true);
                 }
             }

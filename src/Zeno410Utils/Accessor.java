@@ -1,15 +1,15 @@
 package Zeno410Utils;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 /**
  *
  * @author Zeno410
  */
-public class Accessor<ObjectType,FieldType>{
+public class Accessor<ObjectType, FieldType>{
     private Field field;
-    private final String fieldName;
-    public Accessor(String _fieldName) {
-        fieldName = _fieldName;
+    private final Class FieldTypeVar;
+    public Accessor(Class _FieldType) {
+        FieldTypeVar = _FieldType;
     }
 
     private Field field(ObjectType example) {
@@ -29,7 +29,7 @@ public class Accessor<ObjectType,FieldType>{
         do {
             fields = classObject.getDeclaredFields();
             for (int i = 0; i < fields.length;i ++) {
-                if (fields[i].getName().contains(fieldName)) {
+                if ((FieldTypeVar.equals(fields[i].getType())) || (FieldTypeVar.isAssignableFrom(fields[i].getClass()))){
                     field = fields[i];
                     field.setAccessible(true);
                     return;
@@ -37,12 +37,12 @@ public class Accessor<ObjectType,FieldType>{
             }
             classObject = classObject.getSuperclass();
         } while (classObject != Object.class);
-        throw new RuntimeException(fieldName +" not found in class "+classObject.getName());
+        throw new RuntimeException(FieldTypeVar.getName() +" not found in class "+classObject.getName());
     }
 
     public FieldType get(ObjectType object) {
         try {
-             return (FieldType)(field(object).get(object));
+            return (FieldType)(field(object).get(object));
         } catch (IllegalArgumentException ex) {
             throw new RuntimeException(ex);
         } catch (IllegalAccessException ex) {

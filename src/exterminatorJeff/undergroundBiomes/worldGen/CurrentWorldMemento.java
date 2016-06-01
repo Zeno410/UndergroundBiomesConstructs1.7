@@ -62,7 +62,7 @@ public class CurrentWorldMemento {
             try {
                 Class bopBiomeclass = BOPBiome.class;// to make sure it's there
                 bopHot = true;
-                inheritedBiomeAccess = new Accessor<BOPInheritedBiome,BiomeGenBase>("inheritedBiome");
+                inheritedBiomeAccess = new Accessor<BOPInheritedBiome,BiomeGenBase>(BiomeGenBase.class);
             } catch (java.lang.NoClassDefFoundError e) {
                 bopHot = false;
             }
