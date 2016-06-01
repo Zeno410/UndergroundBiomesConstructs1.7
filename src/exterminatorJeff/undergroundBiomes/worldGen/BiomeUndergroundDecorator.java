@@ -112,13 +112,21 @@ public class BiomeUndergroundDecorator {
                 BiomeGenUndergroundBase currentBiome = undergroundBiomesForGeneration[(x-par_x) + (z-par_z) * 16];
                 int variation = (int) (currentBiome.strataNoise.noise(x/55.533, z/55.533, 3, 1, 0.5) * 10 - 5);
                 UBStoneCodes defaultColumnStone = currentBiome.fillerBlockCodes;
+
+                Chunk chunk = currentWorld.getChunkFromBlockCoords(x, z);
+                ExtendedBlockStorage[] ebsArray = chunk.getBlockStorageArray();
+                ExtendedBlockStorage ebs = null;
+
                 for(int y = 1; y < generationHeight; y++) {
+                    ebs = ebsArray[y >> 4];
+                    if (ebs == null) continue;
+                    Block currentBlock = ebs.getBlockByExtId(x & 15, y & 15, z & 15);
 
-
-                    Block currentBlock = currentWorld.getBlock(x, y, z);
                     if(NamedVanillaBlock.stone.matches(currentBlock)){
                         UBStoneCodes strata = currentBiome.getStrataBlockAtLayer(y + variation);
-                        currentWorld.setBlock(x, y, z, strata.block, strata.metadata, 2);
+                        ebs.func_150818_a(x & 15, y & 15, z & 15, strata.block);
+                        ebs.setExtBlockMetadata(x & 15, y & 15, z & 15, strata.metadata);
+                        chunk.isModified = true;
                         continue;
                     }
                     if (1>0) continue;
@@ -131,7 +139,7 @@ public class BiomeUndergroundDecorator {
                     if (this.oreUBifier.replaces(currentBlock,metadata)) {
                         UBStoneCodes baseStrata = currentBiome.getStrataBlockAtLayer(y + variation);
                         BlockState replacement = oreUBifier.replacement(currentBlock, metadata,baseStrata,defaultColumnStone);
-                        currentWorld.setBlock(x, y, z, replacement.block, replacement.metadata, 2);
+                        currentWorld.setBlock(x, y, z, replacement.block, replacement.metadata, 0);
                         continue;
                     }
                     if (Block.isEqualTo(currentBlock, Blocks.coal_ore)) throw new RuntimeException();

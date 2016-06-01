@@ -59,8 +59,6 @@ public abstract class BlockMetadataBase extends BlockStone {
         this.setCreativeTab(UndergroundBiomes.tabModBlocks);
         namer = block;
         try {
-            renderID = NoCubes.renderId;
-        } catch (java.lang.NoClassDefFoundError e) {
             renderID = super.getRenderType();
         } catch (java.lang.NoSuchFieldError e) {
             renderID = super.getRenderType();

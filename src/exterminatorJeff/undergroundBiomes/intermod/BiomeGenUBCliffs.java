@@ -37,11 +37,6 @@ public class BiomeGenUBCliffs extends BiomeGenCliffs {
     }
 
     @Override
-    public WorldGenerator func_76730_b(Random par1Random) {
-        return getRandomWorldGenForGrass(par1Random);
-    }
-
-    @Override
 	public void decorate(World world, Random random, int x, int z) {
 		BiomeGenBaseHighlands biome = this;
 		((BiomeGenBase)this).theBiomeDecorator.decorateChunk(world, random, biome, x, z);
@@ -74,11 +69,6 @@ public class BiomeGenUBCliffs extends BiomeGenCliffs {
                 ((BiomeDecorator)((BiomeGenBase)this).theBiomeDecorator).goldGen, 32, 64);
         highlandsDecorator.genOreHighlands(world, random, x, z, 1,
                 ((BiomeDecorator)((BiomeGenBase)this).theBiomeDecorator).diamondGen, 16, 32);
-    }
-
-    @Override
-    public void func_76728_a(World world, Random random, int x, int z) {
-        this.decorate(world, random, x, z);
     }
 
 }

@@ -45,10 +45,6 @@ public class BiomeGenUBRockMountains extends BiomeGenRockMountains
     }
 
     @Override
-    public void func_76728_a(World world, Random random, int x, int z) {
-        decorate(world, random, x, z);
-    }
-    @Override
 	public void decorate(World world, Random random, int x, int z) {
 		BiomeGenBaseHighlands biome = this;
     	if(random.nextInt(2) == 0)

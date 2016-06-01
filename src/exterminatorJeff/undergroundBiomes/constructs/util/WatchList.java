@@ -17,7 +17,7 @@ public class WatchList {
     private HashMap<Object,Watchable> items = new HashMap<Object,Watchable>();
 
     private static Accessor<RegistryNamespaced,ObjectIntIdentityMap> intRegistryAccess =
-            new Accessor<RegistryNamespaced,ObjectIntIdentityMap>("field_148759_a");
+            new Accessor<RegistryNamespaced,ObjectIntIdentityMap>(RegistryNamespaced.class);
 
     //public static Logger logger = new Zeno410Logger("WatchList").logger();
     public ArrayList<String> problems() {

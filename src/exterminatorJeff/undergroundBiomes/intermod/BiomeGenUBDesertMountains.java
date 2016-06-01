@@ -46,10 +46,6 @@ public class BiomeGenUBDesertMountains extends BiomeGenDesertMountains
     }
 
     @Override
-    public void func_76728_a(World world, Random random, int x, int z) {
-        decorate(world, random, x, z);
-    }
-    @Override
 	public void decorate(World world, Random random, int x, int z) {
 
     	if(random.nextInt(4) == 0)
